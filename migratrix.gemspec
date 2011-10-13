@@ -1,6 +1,6 @@
 spec = Gem::Specification.new do |s|
   s.name = 'migratrix'
-  s.version = '0.0.1'
+  s.version = '0.0.2'
   s.date = '2011-10-13'
   s.summary = 'Rails 3 legacy database migratrion tool supporting multiple strategies'
   s.email = "github@shinybit.com"
@@ -12,14 +12,18 @@ spec = Gem::Specification.new do |s|
   s.extra_rdoc_files = ["README.rdoc", "MIT-LICENSE"]
   s.authors = ["David Brady"]
   s.add_dependency('trollop')
-  s.add_dependency('rails', '>= 3.0.0')
-
 
   # ruby -rpp -e "pp (Dir['{README,{examples,lib,protocol,spec}/**/*.{rdoc,json,rb,txt,xml,yml}}'] + Dir['bin/*']).map.sort"
   s.files = [
     "bin/migratrix",
     "lib/migratrix.rb",
-    "spec/migratrix_spec.rb",
+    "lib/migratrix/exceptions.rb",
+    "lib/migratrix/migrator.rb",
+    "lib/patches/andand.rb",
+    "lib/patches/object_ext.rb",
+    "lib/patches/string_ext.rb",
+    "spec/fixtures/migrators/marbles_migrator.rb",
+    "spec/lib/migratrix_spec.rb",
     "spec/spec_helper.rb"
   ]
 end

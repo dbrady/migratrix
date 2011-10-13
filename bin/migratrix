@@ -1,2 +1,2 @@
 #!/usr/bin/env ruby
-puts "Nothing to see here yet"
+puts "Nothing to see here yet -- use rake tasks to call Migratrix.migrate!(:migrator, options) directly"
