@@ -4,9 +4,13 @@ Dominate your legacy Rails migrations! Migratrix is a gem to help you
 generate and control Migrators, which extract data from legacy systems
 and import them into your current one.
 
-== Authors
+== Warning: Experimental Developmental In-Progress Stuff
 
-* David Brady -- github@shinybit.com
+I am currently extracting Migratrix from an ancient codebase. A lot of
+the stuff I say Migratrix supports is stuff that it supports over
+there, not in here. Be aware that most of this document is more of a
+TODO list than a statement of fact. I'll remove this message once
+Migratrix does what it says on the tin.
 
 == General Info
 
@@ -61,6 +65,19 @@ by ruby--the entire ETL must be handled by the single SQL statement.
 Additionally, it is seriously nontrivial to log the migrated records
 because you have to handle that at the SQL level as well.
 
+== Slices of Data
+
+Migratrix supports taking partial slices of data. You can migrate a
+single record to test a migraton, grab 100 records or 1000 to get an
+idea for how long a full migration will take, or perform the entire
+migration.
+
+== Ongoing Migrations
+
+Migratrix also supports ongoing migrations, which are useful when the
+legacy database continues to operate and change after the new Rails
+site is live and you cannot remigrate all-new data.
+
 == Migration Log
 
 Migratrix can create a migration log for you. This is a table that
@@ -68,6 +85,17 @@ contains the legacy id and table, and the destination id and table. It
 can also record the source object, which is useful for debugging or
 handling migration cases where legacy records get changed or deleted
 after migrating.
+
+== Migration Tests
+
+Sorry, nothing to see here yet. Migratrix was originally developed in
+an environment where the migrations were so heavy-duty and hairy that
+we literally had legacy_migration_test and
+legacy_migration_development databases for migration development.
+Migratrix doesn't directly support testing of migrations yet. This is
+mostly a note to remind myself that that heavy-duty migrations can and
+should be developed in a TDD style, and Migratrix should make this
+easy.
 
 == A note about the name
 
@@ -87,4 +115,8 @@ Migrators, while Migrator is the class that moves a single bit of data.
 == License
 
 MIT. See the license file.
+
+== Authors
+
+* David Brady -- github@shinybit.com
 
