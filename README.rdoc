@@ -20,6 +20,19 @@ Migratrix is a legacy migration tool strategy
 
 So... much... legacy... data....
 
+== Rails and Ruby Requirements
+
+=== Rails 3 Only
+
+Migratrix was originally developed under Rails 2, but come on. Rails 2
+apps are legacy SOURCES now, not destinations. Migratrix requires
+Rails 3. Once everything's in place I'll bump the Migratrix version to
+3.x to indicate that Migratrix is in keeping with Rails 3.
+
+=== Ruby 1.9
+
+Because I can.
+
 == Example
 
 == ETL
