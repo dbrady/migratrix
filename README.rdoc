@@ -6,11 +6,11 @@ and import them into your current one.
 
 == Warning: Experimental Developmental In-Progress Stuff
 
-I am currently extracting Migratrix from an ancient codebase. A lot of
-the stuff I say Migratrix supports is stuff that it supports over
-there, not in here. Be aware that most of this document is more of a
-TODO list than a statement of fact. I'll remove this message once
-Migratrix does what it says on the tin.
+I am currently extracting Migratrix from an ancient legacy codebase.
+(Oh the irony.) A lot of the stuff I say Migratrix supports is stuff
+that it supports over there, not in here. Be aware that most of this
+document is more of a TODO list than a statement of fact. I'll remove
+this message once Migratrix does what it says on the tin.
 
 == General Info
 
