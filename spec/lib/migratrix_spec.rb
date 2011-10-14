@@ -1,20 +1,38 @@
 require 'spec_helper'
 
-# Changing the migrations_path is a stateful class variable that is
-# preserved between test runs. This ensures that the path is reset
-# even if the spec fails or raises an exception.
-def with_reset_migratrix(&block)
-  begin
-    old_path = Migratrix.migrations_path
-    Migratrix.migrations_path = SPEC + "fixtures/migrations"
-    if Migratrix.const_defined?("MarblesMigration")
-      Migratrix.send(:remove_const, :MarblesMigration)
+# This code is hacky and touches the internals of Migratrix, which I
+# don't like, so I refactored Migratrix to have a remove_migration
+# method which uregistered the migration and deleted the class out of
+# the module, which seemed dangerous and weird. When I realized that
+# the ONLY client of remove_migration is this spec file--and that the
+# API was preventing me from extracting class MigrationRegistry from
+# inside of Migratrix--I removed the API and put the hacky dangerous
+# code back in. I'm not a bad programmer, honest. Well, not an evil
+# one, anyway. Anyway, point of all this is, if you discover a
+# legitimate reason to unregister a migration and delete its class
+# constant out of the Migratrix namespace, you're going to nee that
+# API call, and here's the code that goes in it.
+def reset_migratrix!(path=nil)
+    Migratrix.migrations_path = path || Migratrix::DEFAULT_MIGRATIONS_PATH
+    Migratrix.constants.map(&:to_s).select {|m| m =~ /.+Migration$/}.each do |migration|
+      Migratrix.send(:remove_const, migration.to_sym)
       Migratrix.registered_migrations.delete "MarblesMigration"
     end
+end
 
+# migrations_path is a stateful class variable that is not reset
+# between test runs. If you need to use migratrix fixtures, this
+# overrides the default path behavior and un-sets the MarblesMigration
+# fixture. This ensures that the path and fixtures are reset even if
+# the spec fails or raises an exception.
+#
+def with_migratrix_fixtures_available(&block)
+  begin
+    old_path = Migratrix.migrations_path
+    reset_migratrix! SPEC + "fixtures/migrations"
     yield
   ensure
-    Migratrix.migrations_path = old_path
+    reset_migratrix!
   end
 end
 
@@ -25,19 +43,6 @@ describe Migratrix do
 
   it "exists (sanity check)" do
     Migratrix.should_not be_nil
-  end
-
-  describe ".new" do
-    it "does not modify given options hash" do
-      with_reset_migratrix do
-        conditions = ["id=? AND approved=?", 42, true]
-        migration = Migratrix.create_migration(:marbles, { "where" => conditions })
-        migration.options["where"][0] += " AND pants=?"
-        migration.options["where"] << false
-        migration.options["where"].should == ["id=? AND approved=? AND pants=?", 42, true, false]
-        conditions.should == ["id=? AND approved=?", 42, true]
-      end
-    end
   end
 
   describe "MigrationRegistry (needs to be extracted)" do
@@ -99,7 +104,7 @@ describe Migratrix do
 
   describe ".create_migration" do
     it "creates new migration by name with filtered options" do
-      with_reset_migratrix do
+      with_migratrix_fixtures_available do
         migration = Migratrix.create_migration :marbles, { "cheese" => 42, "where" => "id > 100", "limit" => "100" }
         migration.class.should == Migratrix::MarblesMigration
         Migratrix::MarblesMigration.should_not be_migrated
@@ -110,7 +115,7 @@ describe Migratrix do
 
   describe ".migrate" do
     it "loads migration and migrates it" do
-      with_reset_migratrix do
+      with_migratrix_fixtures_available do
         Migratrix.migrate :marbles
         Migratrix::MarblesMigration.should be_migrated
       end

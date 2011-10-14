@@ -4,6 +4,9 @@ module Migratrix
   LIB=Pathname.new(__FILE__).dirname + "migratrix"
   EXT=Pathname.new(__FILE__).dirname + "patches"
 
+  DEFAULT_MIGRATIONS_PATH = Rails.root + 'lib/migrations'
+
+
   require EXT + 'string_ext'
   require EXT + 'object_ext'
   require EXT + 'andand'
@@ -73,7 +76,7 @@ module Migratrix
   # ----------------------------------------------------------------------
   # Migration path class accessors. Defaults to lib/migrations.
   def self.migrations_path
-    @@migrations_path ||= Rails.root + 'lib/migrations'
+    @@migrations_path ||= DEFAULT_MIGRATIONS_PATH
   end
 
   def self.migrations_path=(new_path)

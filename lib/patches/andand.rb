@@ -1,5 +1,11 @@
 =begin
 
+This code was hand-patched by David Brady in May 2011 to shut up the
+warning in Ruby 1.9. At the time of this writing there is a
+6-month-old patch for this in Reg's github version of andand but the
+gem still does not support it. This is minor tweak; Reg's copyright
+and license remain unchanged.
+
 Copyright (c) 2008 Reginald Braithwaite
 http://weblog.raganwald.com/2008/01/objectandand-objectme-in-ruby.html
 
@@ -28,8 +34,8 @@ Some code adapted from Jim Weirich's post:
 http://onestepback.org/index.cgi/Tech/Ruby/BlankSlate.rdoc
 
 =end
-
 module AndAnd
+# :nocov:
 
   module ObjectGoodies
 
@@ -92,6 +98,7 @@ module AndAnd
       @me
     end
   end
+#:nocov:
 
 end
 
