@@ -5,21 +5,39 @@ module Migratrix
     attr_accessor :options, :logger
 
     def initialize(options={})
-      @options = options
+      @options = options.deep_copy
+      # This should only be loaded if a) the Migration uses the AR
+      # extract strategy and b) it's not already loaded
+#      ::ActiveRecord::Base.send(:include, MigrationHelpers) unless ::ActiveRecord::Base.const_defined?("MigrationHelpers")
     end
 
+    # Load this data from source
+    def extract
+      # run the chain of extractions
+    end
+
+    # Transforms source data into outputs
+    def transform
+      # run the chain of transforms
+    end
+
+    # Saves the migrated data by "loading" it into our database or
+    # other data sink.
+    def load
+      # run the chain of loads
+    end
+
+    # Perform the migration
     def migrate
-      # default strategy: vanilla ActiveRecord => ActiveRecord
-      # TODO: Implement this with extract!, transform!, load!, and the
-      # child class can either override this or one or more of the ETL
-      # methods; ALSO need a setup/init/builder
-      raise NotImplementedError.new("superclass Migratrix::Migration.migrate! does not have a default strategy (yet?)")
+      extract
+      transform
+      load
     end
 
     def execute(query, msg=nil)
       log(msg || query) unless msg == false
       # TODO: this is bad, need to use specific connection at source
-#      ::ActiveRecord::Base.connection.execute query
+      ::ActiveRecord::Base.connection.execute query
     end
 
     def logger

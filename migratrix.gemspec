@@ -17,6 +17,7 @@ spec = Gem::Specification.new do |s|
   s.files = [
     "bin/migratrix",
     "lib/migratrix.rb",
+    "lib/migratrix/active_record_migration_helpers.rb",
     "lib/migratrix/exceptions.rb",
     "lib/migratrix/migration.rb",
     "lib/patches/andand.rb",

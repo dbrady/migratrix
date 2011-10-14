@@ -1,14 +1,21 @@
 require 'spec_helper'
 
-def reset_migratrix
-  # TODO: Move this back to "fragile" hacky code that hacks
-  # Migratrix's constants because these specs are the ONLY clients of
-  # the remove_migration method, and it's preventing me from
-  # extracting the Registry.
-  if Migratrix.loaded?("MarblesMigration")
-    Migratrix.remove_migration("MarblesMigration")
+# Changing the migrations_path is a stateful class variable that is
+# preserved between test runs. This ensures that the path is reset
+# even if the spec fails or raises an exception.
+def with_reset_migratrix(&block)
+  begin
+    old_path = Migratrix.migrations_path
+    Migratrix.migrations_path = SPEC + "fixtures/migrations"
+    if Migratrix.const_defined?("MarblesMigration")
+      Migratrix.send(:remove_const, :MarblesMigration)
+      Migratrix.registered_migrations.delete "MarblesMigration"
+    end
+
+    yield
+  ensure
+    Migratrix.migrations_path = old_path
   end
-  Migratrix.migrations_path = SPEC + "fixtures/migrations"
 end
 
 describe Migratrix do
@@ -16,8 +23,21 @@ describe Migratrix do
     Migratrix.class_eval("class PantsMigration < Migration; end")
   end
 
-  it "exists" do
+  it "exists (sanity check)" do
     Migratrix.should_not be_nil
+  end
+
+  describe ".new" do
+    it "does not modify given options hash" do
+      with_reset_migratrix do
+        conditions = ["id=? AND approved=?", 42, true]
+        migration = Migratrix.create_migration(:marbles, { "where" => conditions })
+        migration.options["where"][0] += " AND pants=?"
+        migration.options["where"] << false
+        migration.options["where"].should == ["id=? AND approved=? AND pants=?", 42, true, false]
+        conditions.should == ["id=? AND approved=?", 42, true]
+      end
+    end
   end
 
   describe "MigrationRegistry (needs to be extracted)" do
@@ -37,18 +57,11 @@ describe Migratrix do
     it "raises fetch error when fetching unregistered migration" do
       lambda { Migratrix.fetch_migration("arglebargle") }.should raise_error(KeyError)
     end
-
-    it "can remove migrations and their constants" do
-      Migratrix.remove_migration "PantsMigration"
-      Migratrix.loaded?("PantsMigration").should be_false
-      Migratrix.const_defined?("PantsMigration").should be_false
-    end
   end
 
   describe "Migrations path" do
     it "uses ./lib/migrations by default" do
-      Rails.stub!(:root).and_return(Pathname.new('/tmp'))
-      Migratrix.migrations_path.should == Pathname.new("/tmp") + "lib/migrations"
+      Migratrix.migrations_path.should == ROOT + "lib/migrations"
     end
 
     it "can be overridden" do
@@ -85,28 +98,23 @@ describe Migratrix do
   end
 
   describe ".create_migration" do
-    before do
-      reset_migratrix
-    end
-
     it "creates new migration by name with filtered options" do
-      migration = Migratrix.create_migration :marbles, { "cheese" => 42, "where" => "id > 100", "limit" => "100" }
-      migration.class.should == Migratrix::MarblesMigration
-      Migratrix::MarblesMigration.should_not be_migrated
-      migration.options.should == { "where" => "id > 100", "limit" => "100" }
+      with_reset_migratrix do
+        migration = Migratrix.create_migration :marbles, { "cheese" => 42, "where" => "id > 100", "limit" => "100" }
+        migration.class.should == Migratrix::MarblesMigration
+        Migratrix::MarblesMigration.should_not be_migrated
+        migration.options.should == { "where" => "id > 100", "limit" => "100" }
+      end
     end
   end
 
   describe ".migrate" do
-    before do
-      reset_migratrix
-    end
-
     it "loads migration and migrates it" do
-      Migratrix.migrate :marbles
-      Migratrix::MarblesMigration.should be_migrated
+      with_reset_migratrix do
+        Migratrix.migrate :marbles
+        Migratrix::MarblesMigration.should be_migrated
+      end
     end
   end
-
 end
 

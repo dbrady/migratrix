@@ -53,25 +53,19 @@ module Migratrix
   # ----------------------------------------------------------------------
   # Candidate for exract class? MigrationRegistry?
   def self.loaded?(name)
-    migration_classes.key? name.to_s
+    registered_migrations.key? name.to_s
   end
 
   def self.register_migration(name, klass)
-    migration_classes[name.to_s] = klass
+    registered_migrations[name.to_s] = klass
   end
 
   def self.fetch_migration(name)
-    migration_classes.fetch name.to_s
+    registered_migrations.fetch name.to_s
   end
 
-  def self.migration_classes
-    @@migration_classes ||= {}
-  end
-
-  def self.remove_migration(name)
-    name = name.to_s
-    klass = migration_classes.delete(name)
-    remove_const name.to_sym
+  def self.registered_migrations
+    @@registered_migrations ||= {}
   end
   # End MigrationRegistry
   # ----------------------------------------------------------------------
@@ -79,7 +73,7 @@ module Migratrix
   # ----------------------------------------------------------------------
   # Migration path class accessors. Defaults to lib/migrations.
   def self.migrations_path
-    @@migrations_path ||= ::Rails.root + 'lib/migrations'
+    @@migrations_path ||= Rails.root + 'lib/migrations'
   end
 
   def self.migrations_path=(new_path)
