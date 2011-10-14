@@ -1,0 +1,3 @@
+#!/bin/sh
+COVERAGE=true ./run_specs $*
+open coverage/index.html

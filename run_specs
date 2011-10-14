@@ -1,0 +1,10 @@
+#!/bin/sh
+if [ $# -lt 1 ]; then
+  TARGET=spec
+else
+  TARGET=$*
+fi
+
+echo "time rspec $TARGET"
+time rspec $TARGET
+
