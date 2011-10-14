@@ -1,55 +1,59 @@
 require 'spec_helper'
 
 def reset_migratrix
-  if Migratrix.loaded?("MarblesMigrator")
-    Migratrix.remove_migrator("MarblesMigrator")
+  # TODO: Move this back to "fragile" hacky code that hacks
+  # Migratrix's constants because these specs are the ONLY clients of
+  # the remove_migration method, and it's preventing me from
+  # extracting the Registry.
+  if Migratrix.loaded?("MarblesMigration")
+    Migratrix.remove_migration("MarblesMigration")
   end
-  Migratrix.migrators_path = SPEC + "fixtures/migrators"
+  Migratrix.migrations_path = SPEC + "fixtures/migrations"
 end
 
 describe Migratrix do
   before do
-    Migratrix.class_eval("class PantsMigrator < Migrator; end")
+    Migratrix.class_eval("class PantsMigration < Migration; end")
   end
 
   it "exists" do
     Migratrix.should_not be_nil
   end
 
-  describe "MigratorRegistry (needs to be extracted)" do
+  describe "MigrationRegistry (needs to be extracted)" do
     before do
-      Migratrix.register_migrator "PantsMigrator", Migratrix::PantsMigrator
+      Migratrix.register_migration "PantsMigration", Migratrix::PantsMigration
     end
 
-    it "can register migrators by name" do
-      Migratrix.loaded?("PantsMigrator").should be_true
-      Migratrix.const_defined?("PantsMigrator").should be_true
+    it "can register migrations by name" do
+      Migratrix.loaded?("PantsMigration").should be_true
+      Migratrix.const_defined?("PantsMigration").should be_true
     end
 
-    it "can fetch registered migrator class" do
-      Migratrix.fetch_migrator("PantsMigrator").should == Migratrix::PantsMigrator
+    it "can fetch registered migration class" do
+      Migratrix.fetch_migration("PantsMigration").should == Migratrix::PantsMigration
     end
 
-    it "raises fetch error when fetching unregistered migrator" do
-      lambda { Migratrix.fetch_migrator("arglebargle") }.should raise_error(KeyError)
+    it "raises fetch error when fetching unregistered migration" do
+      lambda { Migratrix.fetch_migration("arglebargle") }.should raise_error(KeyError)
     end
 
-    it "can remove migrators and their constants" do
-      Migratrix.remove_migrator "PantsMigrator"
-      Migratrix.loaded?("PantsMigrator").should be_false
-      Migratrix.const_defined?("PantsMigrator").should be_false
+    it "can remove migrations and their constants" do
+      Migratrix.remove_migration "PantsMigration"
+      Migratrix.loaded?("PantsMigration").should be_false
+      Migratrix.const_defined?("PantsMigration").should be_false
     end
   end
 
-  describe "Migrators path" do
-    it "uses ./lib/migrators by default" do
+  describe "Migrations path" do
+    it "uses ./lib/migrations by default" do
       Rails.stub!(:root).and_return(Pathname.new('/tmp'))
-      Migratrix.migrators_path.should == Pathname.new("/tmp") + "lib/migrators"
+      Migratrix.migrations_path.should == Pathname.new("/tmp") + "lib/migrations"
     end
 
     it "can be overridden" do
-      Migratrix.migrators_path = Pathname.new('/tmp')
-      Migratrix.migrators_path.should == Pathname.new("/tmp")
+      Migratrix.migrations_path = Pathname.new('/tmp')
+      Migratrix.migrations_path.should == Pathname.new("/tmp")
     end
   end
 
@@ -65,42 +69,42 @@ describe Migratrix do
     end
   end
 
-  describe ".migrator_name" do
-    it "classifies the name and adds Migrator" do
-      Migratrix.migrator_name("shirt").should == "ShirtMigrator"
+  describe ".migration_name" do
+    it "classifies the name and adds Migration" do
+      Migratrix.migration_name("shirt").should == "ShirtMigration"
     end
 
     it "handles symbols" do
-      Migratrix.migrator_name(:socks).should == "SocksMigrator"
+      Migratrix.migration_name(:socks).should == "SocksMigration"
     end
 
     it "preserves pluralization" do
-      Migratrix.migrator_name(:pants).should == "PantsMigrator"
-      Migratrix.migrator_name(:shirts).should == "ShirtsMigrator"
+      Migratrix.migration_name(:pants).should == "PantsMigration"
+      Migratrix.migration_name(:shirts).should == "ShirtsMigration"
     end
   end
 
-  describe ".create_migrator" do
+  describe ".create_migration" do
     before do
       reset_migratrix
     end
 
-    it "creates new migrator by name with filtered options" do
-      migrator = Migratrix.create_migrator :marbles, { "cheese" => 42, "where" => "id > 100", "limit" => "100" }
-      migrator.class.should == Migratrix::MarblesMigrator
-      Migratrix::MarblesMigrator.should_not be_migrated
-      migrator.options.should == { "where" => "id > 100", "limit" => "100" }
+    it "creates new migration by name with filtered options" do
+      migration = Migratrix.create_migration :marbles, { "cheese" => 42, "where" => "id > 100", "limit" => "100" }
+      migration.class.should == Migratrix::MarblesMigration
+      Migratrix::MarblesMigration.should_not be_migrated
+      migration.options.should == { "where" => "id > 100", "limit" => "100" }
     end
   end
 
-  describe ".migrate!" do
+  describe ".migrate" do
     before do
       reset_migratrix
     end
 
-    it "loads migrator and migrates it" do
-      Migratrix.migrate! :marbles
-      Migratrix::MarblesMigrator.should be_migrated
+    it "loads migration and migrates it" do
+      Migratrix.migrate :marbles
+      Migratrix::MarblesMigration.should be_migrated
     end
   end
 

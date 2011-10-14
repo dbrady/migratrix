@@ -8,38 +8,38 @@ module Migratrix
   require EXT + 'object_ext'
   require EXT + 'andand'
   require LIB + 'exceptions'
-  require LIB + 'migrator'
+  require LIB + 'migration'
 
-  def self.migrate!(name, options={})
+  def self.migrate(name, options={})
     name = name.to_s
-    migrator = create_migrator(name, options)
-    migrator.migrate!
+    migration = create_migration(name, options)
+    migration.migrate
   end
 
-  # Loads #{name}_migrator.rb from migrators path, instantiates
-  # #{Name}Migrator with options, and returns it.
-  def self.create_migrator(name, options={})
+  # Loads #{name}_migration.rb from migrations path, instantiates
+  # #{Name}Migration with options, and returns it.
+  def self.create_migration(name, options={})
     options = filter_options(options)
-    klass_name = migrator_name(name)
+    klass_name = migration_name(name)
     unless loaded?(klass_name)
-      raise MigratorAlreadyExists.new("Migratrix cannot instantiate class Migratrix::#{klass_name} because it already exists") if Migratrix.const_defined?(klass_name)
-      filename = migrators_path + "#{name}_migrator.rb"
-      raise MigratorFileNotFound.new("Migratrix cannot find migrator file #{filename}") unless File.exists?(filename)
+      raise MigrationAlreadyExists.new("Migratrix cannot instantiate class Migratrix::#{klass_name} because it already exists") if Migratrix.const_defined?(klass_name)
+      filename = migrations_path + "#{name}_migration.rb"
+      raise MigrationFileNotFound.new("Migratrix cannot find migration file #{filename}") unless File.exists?(filename)
       load filename
-      raise MigratorNotDefined.new("Expected migrator file #{filename} to define Migratrix::#{klass_name} but it did not") unless Migratrix.const_defined?(klass_name)
-      register_migrator(klass_name, "Migratrix::#{klass_name}".constantize)
-      fetch_migrator(klass_name).new(options)
+      raise MigrationNotDefined.new("Expected migration file #{filename} to define Migratrix::#{klass_name} but it did not") unless Migratrix.const_defined?(klass_name)
+      register_migration(klass_name, "Migratrix::#{klass_name}".constantize)
+      fetch_migration(klass_name).new(options)
     end
   end
 
-  def self.migrator_name(name)
+  def self.migration_name(name)
     name = name.to_s
     name = if name.plural?
       name.classify.pluralize
     else
       name.classify
     end
-    name + "Migrator"
+    name + "Migration"
   end
 
   def self.filter_options(hash)
@@ -51,41 +51,40 @@ module Migratrix
   end
 
   # ----------------------------------------------------------------------
-  # Candidate for exract class? MigratorRegistry?
+  # Candidate for exract class? MigrationRegistry?
   def self.loaded?(name)
-    migrator_classes.key? name.to_s
+    migration_classes.key? name.to_s
   end
 
-  def self.register_migrator(name, klass)
-    migrator_classes[name.to_s] = klass
+  def self.register_migration(name, klass)
+    migration_classes[name.to_s] = klass
   end
 
-  def self.fetch_migrator(name)
-    migrator_classes.fetch name.to_s
+  def self.fetch_migration(name)
+    migration_classes.fetch name.to_s
   end
 
-  def self.migrator_classes
-    @@migrator_classes ||= {}
+  def self.migration_classes
+    @@migration_classes ||= {}
   end
 
-  def self.remove_migrator(name)
+  def self.remove_migration(name)
     name = name.to_s
-    klass = migrator_classes.delete(name)
+    klass = migration_classes.delete(name)
     remove_const name.to_sym
   end
-  # End MigratorRegistry
+  # End MigrationRegistry
   # ----------------------------------------------------------------------
 
-
   # ----------------------------------------------------------------------
-  # Migrator path class accessors. Defaults to lib/migrators.
-  def self.migrators_path
-    @@migrators_path ||= ::Rails.root + 'lib/migrators'
+  # Migration path class accessors. Defaults to lib/migrations.
+  def self.migrations_path
+    @@migrations_path ||= ::Rails.root + 'lib/migrations'
   end
 
-  def self.migrators_path=(new_path)
-    @@migrators_path = Pathname.new new_path
+  def self.migrations_path=(new_path)
+    @@migrations_path = Pathname.new new_path
   end
-  # End Migrator path management
+  # End Migration path management
   # ----------------------------------------------------------------------
 end

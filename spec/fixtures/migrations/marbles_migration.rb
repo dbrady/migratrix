@@ -1,12 +1,12 @@
 # Fake migrator
 module Migratrix
-  class MarblesMigrator < Migratrix::Migrator
+  class MarblesMigration < Migratrix::Migration
     def initialize(options={})
       super
       @@migrated = false
     end
 
-    def migrate!
+    def migrate
       @@migrated = true
     end
 
