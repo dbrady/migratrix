@@ -17,18 +17,6 @@ describe Migratrix::Migration do
       migration.options["where"].should == ["id=? AND approved=? AND pants=?", 42, true, false]
       conditions.should == ["id=? AND approved=?", 42, true]
     end
-
-    it "safely moves logger option out of its options and into logger attribute" do
-      conditions = ["id=? AND approved=?", 42, true]
-      logger = Logger.new(StringIO.new)
-      options = { "where" => conditions, "logger" => logger }
-
-      migration = Migratrix::TestMigration.new(options)
-
-      migration.options.should_not have_key("logger")
-      migration.logger.should == logger
-      options.should == { "where" => conditions, "logger" => logger }
-    end
   end
 
   describe "#migrate" do

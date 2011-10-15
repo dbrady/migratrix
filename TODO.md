@@ -1,13 +1,35 @@
 # TODO #
 
-* [X] BARF Extract Migratrix code into a central/main/controller
+* [x] BARF Extract Migratrix code into a central/main/controller
   class.
+
+* [x] Fix the module-level API: `migrate!`, `logger` and `logger=` are
+  all that are really necessary; everything else people can go through
+  `Migratrix::Migratrix` to get at, or more likely directly to
+  `Migratrix::Migration`, etc.
   
+* [x] Reinstate the logging stuff. Migratrix should log to STDOUT by
+  default, or somewhere else if redirected, and everything in the
+  Migratrix namespace should share/reuse that logger. Singletons,
+  anyone?
+
 * [ ] 100% code coverage, because I *can*.
 
 * [ ] Parts of migratrix_spec.rb are testing migration.rb. Extract them.
 
 * [ ] Extract MigrationRegistry.
+
+* [ ] Consider having a `Migratrix::ModelBase < ActiveRecord::Base`
+  base class with all the ActiveRecord migration helpers pre-mixed-in.
+  Then users can define something like
+  
+    module Legacy
+      class Base < Migratrix::ModelBase
+        establish_connection :legacy
+      end
+    end
+    
+  ...and build up their legacy models from there.
 
 * [ ] Move `Migratrix.valid_options` into migration, provide
   `valid_options` class method / DSL to allow subclasses to

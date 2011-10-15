@@ -2,12 +2,25 @@
 # and integrating all the parts of a migration.
 
 module Migratrix
-
-  def migrate(name, options={})
+  def self.migrate!(name, options={})
     ::Migratrix::Migratrix.migrate(name, options)
   end
 
+  def self.logger
+    ::Migratrix::Migratrix.logger
+  end
+
+  def self.logger=(new_logger)
+    ::Migratrix::Migratrix.logger= new_logger
+  end
+
   class Migratrix
+    include ::Migratrix::Loggable
+    extend ::Migratrix::Loggable::ClassMethods
+
+    def initialize
+    end
+
     def self.migrate(name, options={})
       migratrix = self.new()
       migration = migratrix.create_migration(name, options)
@@ -46,7 +59,7 @@ module Migratrix
     end
 
     def valid_options
-      %w(limit where logger)
+      %w(limit where)
     end
 
     # ----------------------------------------------------------------------
@@ -69,8 +82,6 @@ module Migratrix
     # End MigrationRegistry
     # ----------------------------------------------------------------------
 
-    # ----------------------------------------------------------------------
-    # Migration path class accessors. Defaults to lib/migrations.
     def migrations_path
       @migrations_path ||= ::Migratrix.default_migrations_path
     end
@@ -78,21 +89,5 @@ module Migratrix
     def migrations_path=(new_path)
       @migrations_path = Pathname.new new_path
     end
-
-#     def self.migrations_path
-#       @@migrations_path ||= ::Migratrix::DEFAULT_MIGRATIONS_PATH
-#     end
-
-#     def self.migrations_path=(new_path)
-#       @@migrations_path = Pathname.new new_path
-#     end
-    # End Migration path management
-    # ----------------------------------------------------------------------
-
-#     def self.log(msg="", level=:info)
-#       return if quiet
-#       level = :info unless level.in? [:debug, :info, :warn, :error, :fatal, :unknown]
-#       logger.send level, "#{Time.now.strftime('%T')}: #{msg}"
-#     end
   end
 end

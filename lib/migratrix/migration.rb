@@ -2,21 +2,14 @@ module Migratrix
   # Superclass for all migrations. Migratrix COULD check to see that a
   # loaded migration inherits from this class, but hey, duck typing.
   class Migration
-    attr_accessor :options, :logger
+    include ::Migratrix::Loggable
+    extend ::Migratrix::Loggable::ClassMethods
+
+    attr_accessor :options
 
     def initialize(options={})
       # cannot make a deep copy of an IO stream (e.g. logger) so make a shallow copy of it and move it out of the way
-      @options = options.dup.tap {|h| @logger = h.delete("logger")}.deep_copy
-
-#       if options["logger"]
-#         @logger = options["logger"]
-#         options = options.dup
-#         options.delete["logger"]
-#       end
-#       @options = options.deep_copy
-      # This should only be loaded if a) the Migration uses the AR
-      # extract strategy and b) it's not already loaded
-#      ::ActiveRecord::Base.send(:include, MigrationHelpers) unless ::ActiveRecord::Base.const_defined?("MigrationHelpers")
+      @options = options.deep_copy
     end
 
     # Load this data from source

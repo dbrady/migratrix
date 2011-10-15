@@ -1,19 +1,5 @@
 require 'spec_helper'
 
-# Migatrix loads Migration classes into its namespace. In order to
-# test collision prevention, I needed to reach into Migratrix and
-# mindwipe it of any migrations. Here's the shiv to do that. I
-# originally put an API to do this on Migratrix but these specs are
-# the only clients of it so I removed it again. If you find a
-# legitimate use for it, feel free to re-add a remove_migration
-# method and send me a patch.
-def reset_migratrix!(migratrix)
-  Migratrix.constants.map(&:to_s).select {|m| m =~ /.+Migration$/}.each do |migration|
-    Migratrix.send(:remove_const, migration.to_sym)
-  end
-  migratrix.registered_migrations.clear
-end
-
 describe Migratrix::Migratrix do
   let (:migratrix) { Migratrix::Migratrix.new }
 
@@ -60,7 +46,7 @@ describe Migratrix::Migratrix do
 
   describe "#valid_options" do
     it "returns the valid set of option keys" do
-      migratrix.valid_options.should == ["limit", "where", "logger"]
+      migratrix.valid_options.should == ["limit", "where"]
     end
   end
 
@@ -111,6 +97,31 @@ describe Migratrix::Migratrix do
       Migratrix::Migratrix.stub!(:new).and_return(migratrix)
       Migratrix::Migratrix.migrate :marbles
       Migratrix::MarblesMigration.should be_migrated
+    end
+  end
+
+  describe ".logger" do
+    it "sets up a default logger to stdout" do
+      migratrix.logger.class.should == ::Migratrix::Logger
+    end
+  end
+
+  describe ".logger=" do
+    let (:migration) { migratrix.create_migration :marbles }
+    let (:buffer) { StringIO.new }
+
+    before do
+      reset_migratrix! migratrix
+      migratrix.migrations_path = SPEC + "fixtures/migrations"
+    end
+
+    it "sets logger globally across all Migratrices, the Migratrix module, Migrators and Models" do
+      with_logger_streaming_to(buffer) do
+        Migratrix.logger.stream.should == buffer
+        Migratrix::Migratrix.logger.stream.should == buffer
+        migratrix.logger.stream.should == buffer
+        migration.logger.stream.should == buffer
+      end
     end
   end
 end

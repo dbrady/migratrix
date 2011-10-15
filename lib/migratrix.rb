@@ -12,6 +12,8 @@ module Migratrix
   require EXT + 'string_ext'
   require EXT + 'object_ext'
   require EXT + 'andand'
+  require APP + 'logger'
+  require APP + 'loggable'
   require APP + 'exceptions'
   require APP + 'migration'
   require APP + 'migratrix'
