@@ -8,6 +8,7 @@ require 'ruby-debug'
 require 'rails'
 require 'timecop'
 require 'logger'
+require 'active_support/concern'
 
 # Requires supporting ruby files with custom matchers and macros, etc,
 # in spec/support/ and its subdirectories.
@@ -41,21 +42,17 @@ def reset_migratrix!(migratrix)
   migratrix.registered_migrations.clear
 end
 
-# Redirect singleton logger to stream and level of our choice, then
-# release it after the spec finishes or crashes.
-def with_logger_streaming_to(stream, level=Migratrix::Logger::INFO, &block)
+# Redirect singleton logger to logger of our choice, then release it
+# after the spec finishes or crashes.
+def with_logger(logger, &block)
   begin
-    old_stream, old_level = Migratrix::Logger.logger.stream, Migratrix::Logger.logger.level
-    Migratrix::Logger.set_logger(stream, level)
+    old_logger = Migratrix::Migratrix.logger
+    Migratrix::Migratrix.logger = logger
     yield
   ensure
-    Migratrix::Logger.set_logger old_stream, old_level
+    Migratrix::Migratrix.logger = old_logger
   end
 end
-
-
-
-
 
 RSpec.configure do |config|
   # == Mock Framework

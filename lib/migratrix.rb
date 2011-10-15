@@ -1,5 +1,6 @@
 require 'pathname'
 require 'forwardable'
+require 'logger'
 
 module Migratrix
   APP=Pathname.new(__FILE__).dirname + "migratrix"
@@ -12,7 +13,6 @@ module Migratrix
   require EXT + 'string_ext'
   require EXT + 'object_ext'
   require EXT + 'andand'
-  require APP + 'logger'
   require APP + 'loggable'
   require APP + 'exceptions'
   require APP + 'migration'

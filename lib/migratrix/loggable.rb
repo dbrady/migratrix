@@ -5,13 +5,13 @@ module Migratrix
 
     module ClassMethods
       def logger
-        ::Migratrix::Logger.logger
+        ::Migratrix::Migratrix.logger
       end
     end
 
     module InstanceMethods
       def logger
-        ::Migratrix::Logger.logger
+        ::Migratrix::Migratrix.logger
       end
     end
   end

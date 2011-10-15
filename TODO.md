@@ -12,6 +12,10 @@
   default, or somewhere else if redirected, and everything in the
   Migratrix namespace should share/reuse that logger. Singletons,
   anyone?
+  
+* [x] FIX the reinstated logging stuff to act like real loggers, so
+  that we can inject the `Rails.logger` or a `Logger.new($stdout)`
+  without having to muck about with streams.
 
 * [x] 100% code coverage, because I *can*.
 

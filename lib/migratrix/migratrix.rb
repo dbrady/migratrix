@@ -1,7 +1,8 @@
 # Main "App" or Driver class for Migrating. Responsible for loading
 # and integrating all the parts of a migration.
-
 module Migratrix
+  include ::Migratrix::Loggable
+
   def self.migrate!(name, options={})
     ::Migratrix::Migratrix.migrate(name, options)
   end
@@ -11,7 +12,7 @@ module Migratrix
   end
 
   def self.logger=(new_logger)
-    ::Migratrix::Migratrix.logger= new_logger
+    ::Migratrix::Migratrix.logger = new_logger
   end
 
   class Migratrix
@@ -60,6 +61,35 @@ module Migratrix
     def valid_options
       %w(limit where)
     end
+
+    # ----------------------------------------------------------------------
+    # Logger singleton; tries to hook into Rails.logger if it exists (it
+    # won't if you log anything during startup because Migratrix is
+    # loaded before Rails). To fix this, after rails start up call
+    # Migratrix::Migratrix.logger = Rails.logger
+    def self.create_logger(stream)
+      logger = Logger.new(stream)
+      logger.formatter = proc { |severity, datetime, progname, msg|
+        "#{severity[0]} #{datetime.strftime('%F %H:%M:%S')}: #{msg}\n"
+      }
+      logger
+    end
+
+    def self.init_logger
+      return Rails.logger if Rails.logger
+      @@logger = create_logger($stdout)
+    end
+
+    def self.logger
+      @@logger ||= self.init_logger
+    end
+
+    def self.logger=(new_logger)
+      @@logger = new_logger
+    end
+    # ----------------------------------------------------------------------
+
+
 
     # ----------------------------------------------------------------------
     # Candidate for exract class? MigrationRegistry?

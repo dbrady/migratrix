@@ -99,12 +99,6 @@ describe Migratrix::Migratrix do
     end
   end
 
-  describe ".logger" do
-    it "sets up a default logger to stdout" do
-      migratrix.logger.class.should == ::Migratrix::Logger
-    end
-  end
-
   describe ".logger=" do
     let (:migration) { migratrix.create_migration :marbles }
     let (:buffer) { StringIO.new }
@@ -115,11 +109,14 @@ describe Migratrix::Migratrix do
     end
 
     it "sets logger globally across all Migratrices, the Migratrix module, Migrators and Models" do
-      with_logger_streaming_to(buffer) do
-        Migratrix.logger.stream.should == buffer
-        Migratrix::Migratrix.logger.stream.should == buffer
-        migratrix.logger.stream.should == buffer
-        migration.logger.stream.should == buffer
+      logger = Migratrix::Migratrix.create_logger(buffer)
+      Migratrix::Migratrix.logger = logger
+      with_logger(logger) do
+        Migratrix.logger.should == logger
+        Migratrix::Migratrix.logger.should == logger
+        migratrix.logger.should == logger
+        migration.logger.should == logger
+        Migratrix::MarblesMigration.logger.should == logger
       end
     end
   end
