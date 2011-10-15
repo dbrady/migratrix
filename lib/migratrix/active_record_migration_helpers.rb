@@ -1,5 +1,13 @@
 module Migratrix
   module ActiveRecordMigrationHelpers
+
+    # Executes a query on this class' connection, and logs the query
+    # or an optional message to Migratrix.log.
+    def execute(query, msg=nil)
+      Migratrix.log(msg || query) unless msg == false
+      connection.execute query
+    end
+
     # MySQL ONLY: truncates a table using TRUNCATE, which drops the
     # data very quickly and resets any autoindexing primary key to 1.
     def mysql_truncate(table)

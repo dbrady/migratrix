@@ -1,0 +1,45 @@
+#!/usr/bin/env ruby
+require 'yaml'
+require 'trollop'
+require 'logger'
+require 'erubis'
+
+logger = Logger.new($stdout)
+
+def version_string(hash)
+  "%d.%d.%d" % [hash[:major].to_i, hash[:minor].to_i, hash[:patch].to_i]
+end
+
+opts = Trollop.options do
+  opt :major, "Bump major version", :default => false
+  opt :minor, "Bump minor version", :short => 'n', :default => false
+  opt :patch, "Bump patch version", :short => 'p', :default => false
+  opt :view,  "View results (do not save)", :default => false
+end
+
+version = YAML.load_file("./VERSION.yml")
+old_version = version.dup
+
+[:major, :minor, :patch].each do |field|
+  version[field] += 1 if opts[field]
+end
+
+if version_string(version) != version_string(old_version)
+  logger.info("Version updated: %s -> %s" % [version_string(old_version), version_string(version)])
+  unless opts[:view]
+    File.open("./VERSION.yml", "w") do |file|
+      file.puts version.to_yaml
+    end
+  end
+end
+
+gemspec = Erubis::Eruby.new(File.read('migratrix.gemspec.eruby')).result(:version => version)
+if opts[:view]
+  logger.info "new gemspec:\n" + gemspec
+else
+  logger.info "writing new gemspec."
+  File.open("migratrix.gemspec", "w") do |file|
+    file.puts gemspec
+  end
+end
+

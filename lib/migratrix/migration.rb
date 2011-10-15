@@ -5,7 +5,15 @@ module Migratrix
     attr_accessor :options, :logger
 
     def initialize(options={})
-      @options = options.deep_copy
+      # cannot make a deep copy of an IO stream (e.g. logger) so make a shallow copy of it and move it out of the way
+      @options = options.dup.tap {|h| @logger = h.delete("logger")}.deep_copy
+
+#       if options["logger"]
+#         @logger = options["logger"]
+#         options = options.dup
+#         options.delete["logger"]
+#       end
+#       @options = options.deep_copy
       # This should only be loaded if a) the Migration uses the AR
       # extract strategy and b) it's not already loaded
 #      ::ActiveRecord::Base.send(:include, MigrationHelpers) unless ::ActiveRecord::Base.const_defined?("MigrationHelpers")
@@ -34,17 +42,8 @@ module Migratrix
       load
     end
 
-    def execute(query, msg=nil)
-      log(msg || query) unless msg == false
-      # TODO: this is bad, need to use specific connection at source
-      ::ActiveRecord::Base.connection.execute query
-    end
-
-    def logger
-      @logger ||= Logger.new(STDOUT)
-    end
-
-    def log(msg="", level=:info)
+    def self.log(msg="", level=:info)
+      return unless logger
       level = :info unless level.in? [:debug, :info, :warn, :error, :fatal, :unknown]
       logger.send level, "#{Time.now.strftime('%T')}: #{msg}"
     end

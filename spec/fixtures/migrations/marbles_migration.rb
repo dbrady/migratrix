@@ -1,6 +1,6 @@
 module Migratrix
   # Fake migration fixture for "Marbles"
-  class MarblesMigration < Migratrix::Migration
+  class MarblesMigration < Migration
     def initialize(options={})
       super
       @@migrated = false

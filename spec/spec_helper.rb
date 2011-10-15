@@ -6,6 +6,7 @@ end
 require 'pathname'
 require 'ruby-debug'
 require 'rails'
+require 'logger'
 
 # Requires supporting ruby files with custom matchers and macros, etc,
 # in spec/support/ and its subdirectories.

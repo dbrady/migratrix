@@ -112,6 +112,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  erubis
   rails (>= 3.0.0)
   rspec (>= 2.6.0)
   ruby-debug19
