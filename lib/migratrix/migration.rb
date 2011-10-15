@@ -34,12 +34,6 @@ module Migratrix
       transform
       load
     end
-
-    def self.log(msg="", level=:info)
-      return unless logger
-      level = :info unless level.in? [:debug, :info, :warn, :error, :fatal, :unknown]
-      logger.send level, "#{Time.now.strftime('%T')}: #{msg}"
-    end
   end
 end
 

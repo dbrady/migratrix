@@ -96,7 +96,6 @@ describe Migratrix::Migratrix do
     it "loads migration and migrates it" do
       Migratrix::Migratrix.stub!(:new).and_return(migratrix)
       Migratrix::Migratrix.migrate :marbles
-      Migratrix::MarblesMigration.should be_migrated
     end
   end
 

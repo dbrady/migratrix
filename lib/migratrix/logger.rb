@@ -20,6 +20,7 @@ module Migratrix
     end
 
     def initialize(stream, level)
+       # :nocov: SimpleCov can't see into this method.
       @stream, @level = stream, level
     end
 

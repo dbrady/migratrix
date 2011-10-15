@@ -9,9 +9,17 @@ describe Migratrix do
   end
 
   describe ".migrate!" do
+    let (:migratrix) { Migratrix::Migratrix.new }
+
+    before do
+      reset_migratrix! migratrix
+      Migratrix::Migratrix.stub!(:new).and_return(migratrix)
+      migratrix.migrations_path = SPEC + "fixtures/migrations"
+    end
+
     it "delegates to Migratrix::Migratrix" do
-      Migratrix::Migratrix.should_receive(:migrate).with(:marbles, {}).and_return nil
       Migratrix.migrate! :marbles
+      Migratrix::MarblesMigration.should be_migrated
     end
   end
 
