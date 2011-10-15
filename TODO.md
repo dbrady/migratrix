@@ -13,9 +13,9 @@
   Migratrix namespace should share/reuse that logger. Singletons,
   anyone?
 
-* [ ] 100% code coverage, because I *can*.
+* [x] 100% code coverage, because I *can*.
 
-* [ ] Parts of migratrix_spec.rb are testing migration.rb. Extract them.
+* [x] Parts of migratrix_spec.rb are testing migration.rb. Extract them.
 
 * [ ] Extract MigrationRegistry.
 
