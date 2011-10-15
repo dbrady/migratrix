@@ -16,7 +16,6 @@ module Migratrix
 
   class Migratrix
     include ::Migratrix::Loggable
-    extend ::Migratrix::Loggable::ClassMethods
 
     def initialize
     end

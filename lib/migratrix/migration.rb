@@ -3,7 +3,6 @@ module Migratrix
   # loaded migration inherits from this class, but hey, duck typing.
   class Migration
     include ::Migratrix::Loggable
-    extend ::Migratrix::Loggable::ClassMethods
 
     attr_accessor :options
 

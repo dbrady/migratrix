@@ -19,6 +19,11 @@
 
 * [ ] Extract MigrationRegistry.
 
+* [x] Go ahead and commit the included -> extend atrocity with
+  Loggable. It's annoying to have to `include Loggable; extend
+  Loggable::ClassMethods` everywhere I just want #log and .log.
+  _Better: just use ActiveSupport::Concern_.
+  
 * [ ] Consider having a `Migratrix::ModelBase < ActiveRecord::Base`
   base class with all the ActiveRecord migration helpers pre-mixed-in.
   Then users can define something like
