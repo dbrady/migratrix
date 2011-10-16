@@ -5,6 +5,9 @@ require 'logger'
 require 'erubis'
 
 logger = Logger.new($stdout)
+logger.formatter = proc { |severity, datetime, progname, msg|
+  "#{severity[0]} #{datetime.strftime('%F %H:%M:%S')}: #{msg}\n"
+}
 
 def version_string(hash)
   "%d.%d.%d" % [hash[:major].to_i, hash[:minor].to_i, hash[:patch].to_i]
