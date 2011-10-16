@@ -6,6 +6,7 @@ class Migratrix::TestMigration < Migratrix::Migration
 end
 
 describe Migratrix::Migration do
+  let(:migration) { Migratrix::TestMigration.new }
   let(:loggable) { Migratrix::TestMigration.new }
   it_should_behave_like "loggable"
 
@@ -22,8 +23,6 @@ describe Migratrix::Migration do
   end
 
   describe "#migrate" do
-    let(:migration) { Migratrix::TestMigration.new }
-
     it "delegates to extract, transform, and load" do
       migration.should_receive(:extract).once
       migration.should_receive(:transform).once
@@ -32,6 +31,5 @@ describe Migratrix::Migration do
     end
   end
 end
-
 
 
