@@ -15,6 +15,10 @@ module Migratrix
     ::Migratrix::Migratrix.logger = new_logger
   end
 
+  def self.log_to(stream)
+    ::Migratrix::Migratrix.log_to(stream)
+  end
+
   class Migratrix
     include ::Migratrix::Loggable
 
@@ -35,9 +39,7 @@ module Migratrix
       klass_name = migration_name(name)
       unless loaded?(klass_name)
         raise MigrationAlreadyExists.new("Migratrix cannot instantiate class Migratrix::#{klass_name} because it already exists") if ::Migratrix.const_defined?(klass_name)
-        filename = migrations_path + "#{name}_migration.rb"
-        raise MigrationFileNotFound.new("Migratrix cannot find migration file #{filename}") unless File.exists?(filename)
-        load filename
+        reload_migration name
         raise MigrationNotDefined.new("Expected migration file #{filename} to define Migratrix::#{klass_name} but it did not") unless ::Migratrix.const_defined?(klass_name)
         register_migration(klass_name, "Migratrix::#{klass_name}".constantize)
       end
@@ -62,6 +64,12 @@ module Migratrix
       %w(limit where)
     end
 
+    def reload_migration(name)
+      filename = migrations_path + "#{name}_migration.rb"
+      raise MigrationFileNotFound.new("Migratrix cannot find migration file #{filename}") unless File.exists?(filename)
+      load filename
+    end
+
     # ----------------------------------------------------------------------
     # Logger singleton; tries to hook into Rails.logger if it exists (it
     # won't if you log anything during startup because Migratrix is
@@ -73,6 +81,10 @@ module Migratrix
         "#{severity[0]} #{datetime.strftime('%F %H:%M:%S')}: #{msg}\n"
       }
       logger
+    end
+
+    def self.log_to(stream)
+      self.logger = self.create_logger(stream)
     end
 
     def self.init_logger
@@ -106,7 +118,7 @@ module Migratrix
     end
 
     def registered_migrations
-      @registered_migrations ||= {}
+      @@registered_migrations ||= {}
     end
     # End MigrationRegistry
     # ----------------------------------------------------------------------

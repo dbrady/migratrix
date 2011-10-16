@@ -99,26 +99,43 @@ describe Migratrix::Migratrix do
     end
   end
 
-  describe ".logger=" do
+  describe "with logger as a singleton" do
     let (:migration) { migratrix.create_migration :marbles }
     let (:buffer) { StringIO.new }
+
+    def spec_all_loggers_are(this_logger)
+      Migratrix.logger.should == this_logger
+      Migratrix::Migratrix.logger.should == this_logger
+      migratrix.logger.should == this_logger
+      migration.logger.should == this_logger
+      Migratrix::MarblesMigration.logger.should == this_logger
+    end
 
     before do
       reset_migratrix! migratrix
       migratrix.migrations_path = SPEC + "fixtures/migrations"
     end
 
-    it "sets logger globally across all Migratrices, the Migratrix module, Migrators and Models" do
-      logger = Migratrix::Migratrix.create_logger(buffer)
-      Migratrix::Migratrix.logger = logger
-      with_logger(logger) do
-        Migratrix.logger.should == logger
-        Migratrix::Migratrix.logger.should == logger
-        migratrix.logger.should == logger
-        migration.logger.should == logger
-        Migratrix::MarblesMigration.logger.should == logger
+    describe ".logger=" do
+      it "sets logger globally across all Migratrices, the Migratrix module, Migrators and Models" do
+        logger = Migratrix::Migratrix.create_logger(buffer)
+        with_logger(logger) do
+          Migratrix::Migratrix.logger = logger
+          spec_all_loggers_are logger
+        end
+      end
+    end
+    describe ".log_to" do
+      it "sets logger globally across all Migratrices, the Migratrix module, Migrators and Models" do
+        logger = Migratrix::Migratrix.create_logger(buffer)
+        with_logger(logger) do
+          Migratrix::Migratrix.should_receive(:create_logger).with(buffer).once.and_return(logger)
+          Migratrix.log_to buffer
+          spec_all_loggers_are logger
+        end
       end
     end
   end
+
 end
 

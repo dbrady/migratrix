@@ -21,13 +21,19 @@
 
 * [x] Parts of migratrix_spec.rb are testing migration.rb. Extract them.
 
-* [ ] Extract MigrationRegistry.
-
 * [x] Go ahead and commit the included -> extend atrocity with
   Loggable. It's annoying to have to `include Loggable; extend
   Loggable::ClassMethods` everywhere I just want #log and .log.
   _Better: just use ActiveSupport::Concern_.
   
+* [x] Add Migration class name automatically to logging methods.
+
+* [ ] Get AR->Yaml constants migration working.
+
+* [ ] Get vanilla AR 1->1 migration working.
+
+* [ ] Create before/after class methods and method call chains.
+
 * [ ] Consider having a `Migratrix::ModelBase < ActiveRecord::Base`
   base class with all the ActiveRecord migration helpers pre-mixed-in.
   Then users can define something like
@@ -67,30 +73,24 @@
   `load_strategy`, which lets users do it either way and keeps the
   code more testable. Worky.
 
-* [ ] Create before/after class methods and method call chains.
-
-* [ ] Get `EquipmentMigration` working. It should do an ActiveRecord all()
-  on the legacy equipment table, then transform it into a hash of id
-  => Struct.
-  
-* [ ] Get a simple AR->AR 1->1 migration working. Food or Exercises.
-
-* [ ] Get Meals migration working, either as Multimodel (with tricksy
-  joins in the legacy models)->Multimodel or SQL->Multimodel, both
-  with find/create behavior on the food output. **YIKES:** This
-  implies that a complex migration must either have different load
-  strategies for each *type* of data being loaded, and/or it must be
-  able to defer to a separate migration entirely.
-  
-  E.g. importing meals means importing a meal, finding its dependent
-  foods, and then performing the foods migration with the option
-  `"where"=>["id in (?)", foods.map(&:id)]`
+* [ ] Get Hairy BFQ->n migration working, either as Multimodel (with
+  tricksy joins in the legacy models)->Multimodel or SQL->Multimodel,
+  both with find/create behavior on the dependent object output.
+  **YIKES:** This implies that a complex migration must either have
+  different load strategies for each *type* of data being loaded,
+  and/or it must be able to defer to a separate migration entirely.
   
 * [ ] Get a CSV migration working. This involves making either the extract
   or transform phase supply source and destination attribute names,
   and either the transform phase or the load phase must access those
   attribute values and write them to the CSV.
   
+* [ ] Get migration log working
+
+* [ ] Extract MigrationRegistry. Moving this down because while it's a
+  pretty obvious wart in Migratrix, it's a *tiny* obvious wart.
+
+
 # TODON'T (YET) #
 
 * [ ] Write generators, e.g. for

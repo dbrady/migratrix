@@ -37,5 +37,13 @@ describe Migratrix do
       Migratrix.logger = logger
     end
   end
+
+  describe ".log_to" do
+    let (:buffer) { StringIO.new }
+    it "delegates to Migratrix::Migratrix" do
+      Migratrix::Migratrix.should_receive(:log_to).with(buffer).once
+      Migratrix.log_to buffer
+    end
+  end
 end
 
