@@ -7,7 +7,7 @@ module Migratrix
   EXT=Pathname.new(__FILE__).dirname + "patches"
 
   def self.default_migrations_path
-    Rails.root + 'lib/migrations'
+    Rails.root + 'db/legacy'
   end
 
   require EXT + 'string_ext'

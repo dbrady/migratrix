@@ -34,8 +34,8 @@ describe Migratrix::Migratrix do
   end
 
   describe ".migrations_path" do
-    it "uses ./lib/migrations by default" do
-      migratrix.migrations_path.should == ROOT + "lib/migrations"
+    it "uses ./db/legacy by default" do
+      migratrix.migrations_path.should == ROOT + "db/legacy"
     end
 
     it "can be overridden" do
