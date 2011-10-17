@@ -28,7 +28,17 @@
   
 * [x] Add Migration class name automatically to logging methods.
 
-* [ ] Get AR->Yaml constants migration working.
+* [x] Get AR->Yaml constants migration working.
+
+* [x] Extract out Extractor class
+
+* [x] Fix class instance buglet
+
+* [ ] Rename Extractor Extraction
+
+* [ ] Extract out Transform class
+
+* [ ] Extract out Load class
 
 * [ ] Get vanilla AR 1->1 migration working.
 

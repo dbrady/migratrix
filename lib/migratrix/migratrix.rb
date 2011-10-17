@@ -7,6 +7,10 @@ module Migratrix
     ::Migratrix::Migratrix.migrate(name, options)
   end
 
+  def self.create_migration(name, options={})
+    ::Migratrix::Migratrix.create_migration(name, options)
+  end
+
   def self.reload_migration(name)
     ::Migratrix::Migratrix.reload_migration(name)
   end
@@ -35,6 +39,11 @@ module Migratrix
       migration = migratrix.create_migration(name, options)
       migration.migrate
       migratrix
+    end
+
+    def self.create_migration(name, options={})
+      migratrix = self.new()
+      migratrix.create_migration(name, options)
     end
 
     # Loads #{name}_migration.rb from migrations path, instantiates

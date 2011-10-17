@@ -28,14 +28,20 @@ describe Migratrix do
       end
 
       it "delegates to Migratrix::Migratrix" do
-        Migratrix.migrate! :marbles
-        Migratrix::MarblesMigration.should be_migrated
+        Migratrix::Migratrix.should_receive(:migrate).with(:marbles, {:cheese => 42})
+        Migratrix.migrate! :marbles, {:cheese => 42}
       end
     end
 
     describe ".logger" do
       it "delegates to Migratrix::Migratrix" do
         spec_delegates_to_migratrix :logger
+      end
+    end
+
+    describe ".create_migration" do
+      it "delegates to Migratrix::Migratrix" do
+        spec_delegates_to_migratrix :create_migration, :marbles, :source => Object
       end
     end
 

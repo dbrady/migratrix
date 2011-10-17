@@ -8,7 +8,7 @@ end
 describe Migratrix::Migration do
   let(:migration) { Migratrix::TestMigration.new :cheese => 42 }
   let(:loggable) { Migratrix::TestMigration.new }
-  let(:mock_extractor) { mock("Extractor", :extract => 43, :valid_options => [])}
+  let(:mock_extractor) { mock("Migratrix::Extractors::ActiveRecord", :extract => 43, :valid_options => ["fetchall", "limit", "offset", "order", "where"])}
 
   it_should_behave_like "loggable"
 
@@ -24,12 +24,7 @@ describe Migratrix::Migration do
   describe "with mock active_record extractor" do
     before do
       Migratrix::Extractors::ActiveRecord.should_receive(:new).with({:source => Object}).and_return(mock_extractor)
-#      Migratrix::TestMigration.class_eval "set_extractor :active_record, :source => Object"
       Migratrix::TestMigration.set_extractor :active_record, :source => Object
-    end
-
-    after do
-      Migratrix::TestMigration.set_extractor nil
     end
 
     describe ".set_extractor" do
@@ -50,12 +45,9 @@ describe Migratrix::Migration do
   end
 
   describe "#valid_options" do
-    after do
-      migration.class.set_extractor nil
-    end
-
     it "returns its valid options plus those of its extractor, transforms and loads" do
-      migration.class.stub!(:extractor).and_return(mock("Extractor", :valid_options => ["fetchall", "limit", "offset", "order", "where"]))
+      Migratrix::Extractors::ActiveRecord.should_receive(:new).with({:source => Object}).and_return(mock_extractor)
+      Migratrix::TestMigration.set_extractor :active_record, :source => Object
       migration.valid_options.should == ["console", "fetchall", "limit", "offset", "order", "where"]
     end
   end

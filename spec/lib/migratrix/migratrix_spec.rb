@@ -82,7 +82,11 @@ describe Migratrix::Migratrix do
 
     it "loads migration and migrates it" do
       Migratrix::Migratrix.stub!(:new).and_return(migratrix)
+      Migratrix::Migratrix.create_migration :marbles
+      migration = Migratrix::MarblesMigration.new
+      Migratrix::MarblesMigration.stub!(:new).and_return(migration)
       Migratrix::Migratrix.migrate :marbles
+      migration.should be_migrated
     end
 
     describe "with 'console' option" do
@@ -91,6 +95,20 @@ describe Migratrix::Migratrix do
         Migratrix::Migratrix.should_receive(:log_to).with($stdout)
         Migratrix::Migratrix.migrate :marbles, {'console' => true }
       end
+    end
+  end
+
+  describe ".create_migration" do
+    before do
+      reset_migratrix! migratrix
+      migratrix.migrations_path = SPEC + "fixtures/migrations"
+    end
+
+    it "loads, registers and returns migration but does not migrate it" do
+      Migratrix::Migratrix.stub!(:new).and_return(migratrix)
+      migration = Migratrix::Migratrix.create_migration :marbles, {'limit' => 1}
+      migration.should be_kind_of(Migratrix::MarblesMigration)
+      migration.should_not be_migrated
     end
   end
 
