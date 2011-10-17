@@ -8,41 +8,55 @@ describe Migratrix do
     end
   end
 
-  describe ".migrate!" do
-    let (:migratrix) { Migratrix::Migratrix.new }
-
-    before do
-      reset_migratrix! migratrix
-      Migratrix::Migratrix.stub!(:new).and_return(migratrix)
-      migratrix.migrations_path = SPEC + "fixtures/migrations"
+  describe "convenience delegator methods" do
+    def spec_delegates_to_migratrix(method, *args)
+      if args.size > 0
+        Migratrix::Migratrix.should_receive(method).with(*args).once
+      else
+        Migratrix::Migratrix.should_receive(method).once
+      end
+      Migratrix.send(method, *args)
     end
 
-    it "delegates to Migratrix::Migratrix" do
-      Migratrix.migrate! :marbles
-      Migratrix::MarblesMigration.should be_migrated
-    end
-  end
+    describe ".migrate!" do
+      let (:migratrix) { Migratrix::Migratrix.new }
 
-  describe ".logger" do
-    it "delegates to Migratrix::Migratrix" do
-      Migratrix::Migratrix.should_receive(:logger).and_return nil
-      Migratrix.logger
-    end
-  end
+      before do
+        reset_migratrix! migratrix
+        Migratrix::Migratrix.stub!(:new).and_return(migratrix)
+        migratrix.migrations_path = SPEC + "fixtures/migrations"
+      end
 
-  describe ".logger=" do
-    let (:logger) { Logger.new(StringIO.new) }
-    it "delegates to Migratrix::Migratrix" do
-      Migratrix::Migratrix.should_receive(:logger=).with(logger).and_return nil
-      Migratrix.logger = logger
+      it "delegates to Migratrix::Migratrix" do
+        Migratrix.migrate! :marbles
+        Migratrix::MarblesMigration.should be_migrated
+      end
     end
-  end
 
-  describe ".log_to" do
-    let (:buffer) { StringIO.new }
-    it "delegates to Migratrix::Migratrix" do
-      Migratrix::Migratrix.should_receive(:log_to).with(buffer).once
-      Migratrix.log_to buffer
+    describe ".logger" do
+      it "delegates to Migratrix::Migratrix" do
+        spec_delegates_to_migratrix :logger
+      end
+    end
+
+    describe ".logger=" do
+      let (:logger) { Logger.new(StringIO.new) }
+      it "delegates to Migratrix::Migratrix" do
+        spec_delegates_to_migratrix :logger=, logger
+      end
+    end
+
+    describe ".log_to" do
+      let (:buffer) { StringIO.new }
+      it "delegates to Migratrix::Migratrix" do
+        spec_delegates_to_migratrix :log_to, buffer
+      end
+    end
+
+    describe ".reload_migration" do
+      it "delegates to Migratrix::Migratrix" do
+        spec_delegates_to_migratrix :reload_migration, :marbles
+      end
     end
   end
 end

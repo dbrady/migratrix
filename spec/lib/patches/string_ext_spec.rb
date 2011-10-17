@@ -1,26 +1,33 @@
 require 'spec_helper'
 
-describe Object do
-  describe "#in?" do
-    it "returns true if object is included in collection" do
-      3.should be_in([1,2,3,4])
-      "sexy".should be_in("dylsexyc")
+describe String do
+  describe "#plural?" do
+    it "identifies plural strings" do
+      "shirts".should be_plural
+    end
+
+    it "identifies collectively plural strings" do
+      "people".should be_plural
+    end
+
+    it "ignores singular strings" do
+      "sock".should_not be_plural
     end
   end
 
-  describe "#deep_copy" do
-    let(:ray) { [1,2,3]}
-    let(:hash) { {a: 42, b: 69, c: 13, d: 64} }
-    let(:struct) { Struct.new(:array, :hash).new(ray, hash)}
-    let(:big_hash) { {:struct1 => struct, :struct2 => struct, :hash => hash, :array => ray }}
-
-    describe "sanity check" do
-      it "should have objects correctly aliased" do
-        big_hash[:struct1].object_id.should == big_hash[:struct2].object_id
-      end
+  describe "#singular?" do
+    it "identifies singular strings" do
+      "shirt".should be_singular
     end
 
-#     it "returns a completely cloned, fully deep copy of the object" do
-#     end
+    it "identifies collectively plural strings as singular" do
+      "person".should be_singular
+    end
+
+    it "ignores plural strings" do
+      "socks".should_not be_singular
+    end
   end
+
+
 end

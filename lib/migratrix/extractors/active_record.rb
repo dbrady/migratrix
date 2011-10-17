@@ -1,0 +1,54 @@
+module Migratrix
+  module Extractors
+    # Extractor that expects to be pointed at an ActiveRecord class.
+    class ActiveRecord < Extractor
+      # TODO: Raise TypeError in initialize unless Extractor source is
+      # an ActiveRecord model
+
+      def source=(new_source)
+        raise TypeError.new(":source is of type must be an ActiveRecord model class (must inherit from ActiveRecord::Base)") unless is_ar?(new_source)
+        @source = new_source
+      end
+
+      def is_ar?(source)
+        source.is_a?(Class) && source.ancestors.include?(::ActiveRecord::Base)
+      end
+
+      def obtain_source(source)
+        raise ExtractorSourceUndefined unless source
+        raise TypeError.new(":source is of type must be an ActiveRecord model class (must inherit from ActiveRecord::Base)") unless is_ar?(source)
+        source
+      end
+
+      def handle_where(source, clause)
+        source.where(clause)
+      end
+
+      def handle_limit(source, clause)
+        source.limit(clause.to_i)
+      end
+
+      def handle_offset(source, clause)
+        source.offset(clause.to_i)
+      end
+
+      def handle_order(source, clause)
+        source.order(clause)
+      end
+
+      # Constructs the query
+      def to_query(source)
+        if source.is_a?(::ActiveRecord::Relation)
+          source.to_sql
+        else
+          source.handle_where(1).to_sql
+        end
+      end
+
+      def execute_extract(source)
+        source.all
+      end
+    end
+  end
+end
+

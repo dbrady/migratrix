@@ -7,6 +7,10 @@ module Migratrix
     ::Migratrix::Migratrix.migrate(name, options)
   end
 
+  def self.reload_migration(name)
+    ::Migratrix::Migratrix.reload_migration(name)
+  end
+
   def self.logger
     ::Migratrix::Migratrix.logger
   end
@@ -61,7 +65,7 @@ module Migratrix
     end
 
     def valid_options
-      %w(limit where)
+      %w(limit offset order where)
     end
 
     def reload_migration(name)

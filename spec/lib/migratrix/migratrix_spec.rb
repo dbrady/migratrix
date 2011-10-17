@@ -46,7 +46,7 @@ describe Migratrix::Migratrix do
 
   describe "#valid_options" do
     it "returns the valid set of option keys" do
-      migratrix.valid_options.should == ["limit", "where"]
+      migratrix.valid_options.should == ["limit", "offset", "order", "where"]
     end
   end
 

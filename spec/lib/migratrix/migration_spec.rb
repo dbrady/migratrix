@@ -30,6 +30,30 @@ describe Migratrix::Migration do
       migration.migrate
     end
   end
+
+  describe "with mock active_record extractor" do
+    let(:mock_extractor) { mock("Extractor", :extract => 43)}
+    before do
+      Migratrix::Extractors::ActiveRecord.should_receive(:new).with({ :source => Object}).and_return(mock_extractor)
+      Migratrix::TestMigration.class_eval "set_extractor :active_record, :source => Object"
+    end
+
+    describe ".set_extractor" do
+      it "sets the class accessor for extractor" do
+        Migratrix::TestMigration.extractor.should == mock_extractor
+      end
+
+      it "also sets convenience instance method for extractor" do
+        Migratrix::TestMigration.new.extractor.should == mock_extractor
+      end
+    end
+
+    describe "#extract" do
+      it "delegates to extractor" do
+        migration.extract.should == 43
+      end
+    end
+  end
 end
 
 
