@@ -6,21 +6,11 @@ class Migratrix::TestMigration < Migratrix::Migration
 end
 
 describe Migratrix::Migration do
-  let(:migration) { Migratrix::TestMigration.new }
+  let(:migration) { Migratrix::TestMigration.new :cheese => 42 }
   let(:loggable) { Migratrix::TestMigration.new }
+  let(:mock_extractor) { mock("Extractor", :extract => 43, :valid_options => [])}
+
   it_should_behave_like "loggable"
-
-  describe ".new" do
-    it "does not modify given options hash" do
-      conditions = ["id=? AND approved=?", 42, true]
-      migration = Migratrix::TestMigration.new({ "where" => conditions })
-
-      migration.options["where"][0] += " AND pants=?"
-      migration.options["where"] << false
-      migration.options["where"].should == ["id=? AND approved=? AND pants=?", 42, true, false]
-      conditions.should == ["id=? AND approved=?", 42, true]
-    end
-  end
 
   describe "#migrate" do
     it "delegates to extract, transform, and load" do
@@ -32,10 +22,14 @@ describe Migratrix::Migration do
   end
 
   describe "with mock active_record extractor" do
-    let(:mock_extractor) { mock("Extractor", :extract => 43)}
     before do
-      Migratrix::Extractors::ActiveRecord.should_receive(:new).with({ :source => Object}).and_return(mock_extractor)
-      Migratrix::TestMigration.class_eval "set_extractor :active_record, :source => Object"
+      Migratrix::Extractors::ActiveRecord.should_receive(:new).with({:source => Object}).and_return(mock_extractor)
+#      Migratrix::TestMigration.class_eval "set_extractor :active_record, :source => Object"
+      Migratrix::TestMigration.set_extractor :active_record, :source => Object
+    end
+
+    after do
+      Migratrix::TestMigration.set_extractor nil
     end
 
     describe ".set_extractor" do
@@ -54,6 +48,33 @@ describe Migratrix::Migration do
       end
     end
   end
+
+  describe "#valid_options" do
+    after do
+      migration.class.set_extractor nil
+    end
+
+    it "returns its valid options plus those of its extractor, transforms and loads" do
+      migration.class.stub!(:extractor).and_return(mock("Extractor", :valid_options => ["fetchall", "limit", "offset", "order", "where"]))
+      migration.valid_options.should == ["console", "fetchall", "limit", "offset", "order", "where"]
+    end
+  end
+
+  # TODO: it should lo
+
+#   describe "#valid_options" do
+#     it "returns the valid set of option keys" do
+#       migration.valid_options.should == ["limit", "offset", "order", "where"]
+#     end
+#   end
+
+#   describe "#filter_options" do
+#     it "filters out invalid options" do
+#       options = migration.filter_options({ "pants" => 42, "limit" => 3})
+#       options["limit"].should == 3
+#       options.should_not have_key("pants")
+#     end
+#   end
 end
 
 

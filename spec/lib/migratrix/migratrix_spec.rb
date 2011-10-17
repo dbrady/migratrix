@@ -44,20 +44,6 @@ describe Migratrix::Migratrix do
     end
   end
 
-  describe "#valid_options" do
-    it "returns the valid set of option keys" do
-      migratrix.valid_options.should == ["limit", "offset", "order", "where"]
-    end
-  end
-
-  describe "#filter_options" do
-    it "filters out invalid options" do
-      options = migratrix.filter_options({ "pants" => 42, "limit" => 3})
-      options["limit"].should == 3
-      options.should_not have_key("pants")
-    end
-  end
-
   describe "#migration_name" do
     it "classifies the name and adds Migration" do
       migratrix.migration_name("shirt").should == "ShirtMigration"
@@ -79,11 +65,12 @@ describe Migratrix::Migratrix do
       migratrix.migrations_path = SPEC + "fixtures/migrations"
     end
 
-    it "creates new migration by name with filtered options" do
-      migration = migratrix.create_migration :marbles, { "cheese" => 42, "where" => "id > 100", "limit" => "100" }
+    it "creates new migration by name with unfiltered options" do
+      opts = { "cheese" => 42, "where" => "id > 100", "limit" => "100" }
+      migration = migratrix.create_migration :marbles, opts
       migration.class.should == Migratrix::MarblesMigration
-      Migratrix::MarblesMigration.should_not be_migrated
-      migration.options.should == { "where" => "id > 100", "limit" => "100" }
+      Migratrix::MarblesMigration.should_receive(:new).with(opts).and_return(migration)
+      migratrix.create_migration :marbles, opts
     end
   end
 
@@ -96,6 +83,14 @@ describe Migratrix::Migratrix do
     it "loads migration and migrates it" do
       Migratrix::Migratrix.stub!(:new).and_return(migratrix)
       Migratrix::Migratrix.migrate :marbles
+    end
+
+    describe "with 'console' option" do
+      it "tells Migratrix class to log to $stdout" do
+        Migratrix::Migratrix.stub!(:new).and_return(migratrix)
+        Migratrix::Migratrix.should_receive(:log_to).with($stdout)
+        Migratrix::Migratrix.migrate :marbles, {'console' => true }
+      end
     end
   end
 

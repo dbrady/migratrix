@@ -40,6 +40,9 @@ def reset_migratrix!(migratrix)
     Migratrix.send(:remove_const, migration.to_sym)
   end
   migratrix.registered_migrations.clear
+
+  # Also clear any class vars on base classes
+  Migratrix::Migration.extractor = nil
 end
 
 # Redirect singleton logger to logger of our choice, then release it

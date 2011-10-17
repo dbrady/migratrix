@@ -11,18 +11,49 @@ module Migratrix
     attr_accessor :options
 
     def initialize(options={})
-      @options = options.deep_copy
+      @options = filter_options(options.deep_copy)
     end
 
-    # Adds an extractor to the extractors chain.
+    def filter_options(hash)
+      Hash[valid_options.map {|v| hash.key?(v) ? [v, hash[v]] : nil }.compact]
+    end
+
+    # TODO: Technically, we need to ask our extractor, transformers
+    # and loaders for THEIR valid options as well. limit, offset,
+    # order and where are all extractor-only options, and fetchall is
+    # an ActiveRecord-specific option
+    def valid_options
+      opts = %w(console)
+      opts += extractor.valid_options if extractor
+      opts.sort
+    end
+
+    # FIXME: I think @@extractor is shared across ALL Migrator
+    # subclasses, which is bad. Each migration subclass should get its
+    # own Extractor class instance. Arg, may need some serious
+    # metaprogramming dark magic here, because I don't want the user
+    # to have to define "MealExtractor <
+    # Migratrix::Extractors::ActiveRecord", I just want them to be
+    # able to say set_extractor :active_record, :source => ... and get
+    # a new ActiveRecord extractor class. Perhaps I need to do
+    # something like Struct.new and return a new singleton class...
+
+    # Sets the extractor (unlike
+    # transform and load, which have chains, there is only one
+    # Extractor per Migration)
     def self.set_extractor(name, options={})
-      # klassify this name
+      # TODO: crappy hack. set_extractor nil to clear the class variable. Consider removing, I think only the test suite needs this
+      if name.nil?
+        @@extractor = nil
+        return
+      end
+      # TODO: use name to pick from list of extractors. Currently we only have the one.
       raise NotImplementedError.new("Migratrix currently only supports ActiveRecord extractor.") unless name == :active_record
       @@extractor = ::Migratrix::Extractors::ActiveRecord.new(options)
     end
 
     def extractor
-      @@extractor
+      self.class.extractor
     end
 
     # OKAY, NEW RULE: You get ONE Extractor per Migration. You're

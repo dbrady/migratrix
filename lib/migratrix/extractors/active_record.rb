@@ -14,7 +14,11 @@ module Migratrix
         source.is_a?(Class) && source.ancestors.include?(::ActiveRecord::Base)
       end
 
-      def obtain_source(source)
+      def valid_options
+        (super + %w(fetchall)).sort
+      end
+
+      def obtain_source(source, options={})
         raise ExtractorSourceUndefined unless source
         raise TypeError.new(":source is of type must be an ActiveRecord model class (must inherit from ActiveRecord::Base)") unless is_ar?(source)
         source
@@ -45,8 +49,8 @@ module Migratrix
         end
       end
 
-      def execute_extract(src)
-        return src.all if options[:fetchall]
+      def execute_extract(src, options={})
+        return src.all if options['fetchall']
         ret = if src.is_a?(::ActiveRecord::Relation)
                 src
               else

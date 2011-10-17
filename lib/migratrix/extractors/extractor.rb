@@ -21,15 +21,19 @@ module Migratrix
         # the "default strategy" for extraction, and may need to be
         # extracted to a strategy object.
 
-        src = obtain_source(self.source)
+        src = obtain_source(self.source, options)
         src = handle_where(src, options["where"]) if options["where"]
         src = handle_order(src, options["order"]) if options["order"]
         src = handle_limit(src, options["limit"]) if options["limit"]
         src = handle_offset(src, options["offset"]) if options["offset"]
-        execute_extract(src)
+        execute_extract(src, options)
       end
 
-      # = extraction filter methods
+      def valid_options
+        opts = %w(limit offset order where)
+      end
+
+    # = extraction filter methods
       #
       # The handle_* methods receive a source and return a source and
       # must be chainable. For example, source might come in as an
@@ -49,7 +53,7 @@ module Migratrix
       # so it can simply return its source. A CSV or Yaml extractor
       # here might need to read the entire file contents and returns
       # the full, unfiltered data source.
-      def obtain_source(source)
+      def obtain_source(source, options={})
         raise NotImplementedError
       end
 
@@ -80,7 +84,7 @@ module Migratrix
       end
 
       # Execute the extraction and return the result set.
-      def execute_extract(source)
+      def execute_extract(source, options={})
         raise NotImplementedError
       end
     end

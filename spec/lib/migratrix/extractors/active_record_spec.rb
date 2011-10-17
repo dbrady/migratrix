@@ -2,8 +2,6 @@ require 'spec_helper'
 require 'active_record'
 
 class TestModel < ::ActiveRecord::Base
-#  self.abstract_class = true
-  set_table_name :test_model
 end
 
 class TestActiveRecordExtractor < Migratrix::Extractors::ActiveRecord
@@ -27,6 +25,12 @@ describe Migratrix::Extractors::ActiveRecord do
   describe "#source=" do
     it "raises TypeError unless source is Active" do
       lambda { extractor.source = Object }.should raise_error(TypeError)
+    end
+  end
+
+  describe "#valid_options" do
+    it "returns the valid set of option keys" do
+      extractor.valid_options.should == ["fetchall", "limit", "offset", "order", "where"]
     end
   end
 
@@ -90,25 +94,25 @@ describe Migratrix::Extractors::ActiveRecord do
       TestModel.stub!(:establish_connection).and_return true
     end
 
-    describe "with :fetchall option" do
-      let(:extractor) { TestActiveRecordExtractor.new :fetchall => true }
+    describe "with 'fetchall' option" do
+      let(:extractor) { TestActiveRecordExtractor.new "fetchall" => true }
 
       describe "and source is an ActiveRelation" do
         it "calls all on the relation" do
           relation.should_receive(:all).and_return([])
-          extractor.execute_extract(relation).should == []
+          extractor.execute_extract(relation, extractor.options).should == []
         end
       end
 
       describe "and source is still ActiveRecord" do
         it "converts it to ActiveRelation with where(1)" do
           source.should_receive(:all).and_return([])
-          extractor.execute_extract(source).should == []
+          extractor.execute_extract(source, extractor.options).should == []
         end
       end
     end
 
-    describe "without :fetchall option" do
+    describe "without 'fetchall' option" do
       before do
         # hrm, okay, this is tricky. The should == is setting off a
         # tripwire in ActiveRecord that makes it try to connect to

@@ -31,6 +31,7 @@ module Migratrix
 
     def self.migrate(name, options={})
       migratrix = self.new()
+      ::Migratrix::Migratrix.log_to($stdout) if options['console']
       migration = migratrix.create_migration(name, options)
       migration.migrate
       migratrix
@@ -39,7 +40,7 @@ module Migratrix
     # Loads #{name}_migration.rb from migrations path, instantiates
     # #{Name}Migration with options, and returns it.
     def create_migration(name, options={})
-      options = filter_options(options)
+      options = options.deep_copy
       klass_name = migration_name(name)
       unless loaded?(klass_name)
         raise MigrationAlreadyExists.new("Migratrix cannot instantiate class Migratrix::#{klass_name} because it already exists") if ::Migratrix.const_defined?(klass_name)
@@ -58,14 +59,6 @@ module Migratrix
                name.classify
              end
       name + "Migration"
-    end
-
-    def filter_options(hash)
-      Hash[valid_options.map {|v| hash.key?(v) ? [v, hash[v]] : nil }.compact]
-    end
-
-    def valid_options
-      %w(limit offset order where)
     end
 
     def reload_migration(name)
