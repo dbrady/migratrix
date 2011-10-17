@@ -41,12 +41,17 @@ module Migratrix
         if source.is_a?(::ActiveRecord::Relation)
           source.to_sql
         else
-          source.handle_where(1).to_sql
+          handle_where(source, 1).to_sql
         end
       end
 
-      def execute_extract(source)
-        source.all
+      def execute_extract(src)
+        return src.all if options[:fetchall]
+        ret = if src.is_a?(::ActiveRecord::Relation)
+                src
+              else
+                handle_where(src, 1)
+              end
       end
     end
   end
