@@ -1,19 +1,6 @@
 require 'spec_helper'
 
 describe Object do
-  describe "#in?" do
-    let(:ray) { [1,2,3,4] }
-    let(:word) { "dylsexyc" }
-
-    it "returns true if object is included in collection" do
-      3.should be_in(ray)
-      "sexy".should be_in(word)
-
-      3.in?(ray).should be_true
-      "sexy".in?(word).should be_true
-    end
-  end
-
   describe "#deep_copy" do
     let(:ray) { [1,2,3]}
     let(:hash) { {a: 42, b: 69, c: 13, d: 64} }
