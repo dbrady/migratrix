@@ -28,7 +28,7 @@ describe Migratrix::Migration do
     end
 
     describe ".set_extractor" do
-      it "sets the class accessor for extractor" do
+      it "sets the class instance variable for extractor" do
         Migratrix::TestMigration.extractor.should == mock_extractor
       end
 
@@ -42,6 +42,38 @@ describe Migratrix::Migration do
         migration.extract.should == 43
       end
     end
+  end
+
+  describe "with mock map transform" do
+    let(:map) { { :id => :id, :name => :name }}
+    let(:mock_extractor) { mock("Migratrix::Extractors::ActiveRecord", :extract => [42,13,43,14], :valid_options => ["fetchall", "limit", "offset", "order", "where"])}
+    let(:transform1) { mock("Migratrix::Transforms::Map", :transform => [{:id => 42, :name => "Mister Bobo"}, {:id => 43, :name => "Mrs. Bobo"}], :valid_options => ["map"])}
+    let(:transform2) { mock("Migratrix::Transforms::Map", :transform => [{:id => 13, :name => "Sparky"}, {:id => 14, :name => "Fido"}], :valid_options => ["map"])}
+    before do
+      Migratrix::TestMigration.transforms.clear
+      Migratrix::Extractors::ActiveRecord.should_receive(:new).with({:source => Object }).and_return(mock_extractor)
+      Migratrix::Transforms::Map.should_receive(:new).with(:monkeys, :transform => map).and_return(transform1)
+      Migratrix::Transforms::Map.should_receive(:new).with(:puppies, :transform => map).and_return(transform2)
+      Migratrix::TestMigration.set_extractor :active_record, :source => Object
+      Migratrix::TestMigration.set_transform :monkeys, :map, :transform => map
+      Migratrix::TestMigration.set_transform :puppies, :map, :transform => map
+    end
+
+    describe ".set_transform" do
+      it "sets the class instance variable for transforms" do
+        Migratrix::TestMigration.transforms.should == [transform1, transform2]
+      end
+
+      it "also sets convenience instance method for extractor" do
+        Migratrix::TestMigration.new.transforms.should == [transform1, transform2]
+      end
+    end
+
+#     describe "#transform" do
+#       it "delegates to each transforms" do
+#         migration.transforms.should == ...WRITE ME
+#       end
+#     end
   end
 
   describe "#valid_options" do

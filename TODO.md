@@ -34,11 +34,20 @@
 
 * [x] Fix class instance buglet
 
-* [ ] Rename Extractor Extraction
+* [ ] Extract out Transform class, transforms collection.
 
-* [ ] Extract out Transform class
-
+* [ ] Decide on default migratrix n-transform strategy: Do we have
+  the transforms run sequentially, or do we attempt to have them
+  process records in parallel?
+  
+* [ ] Even worse: decide on overall migration strategy: Do we take 1
+  record and ETL it, or extract all records, then transform all, then
+  load all, or do them in batches, etc. See lazy streams idea later,
+  might make things interesting....
+  
 * [ ] Extract out Load class
+
+* [ ] Refactor NotImplementedMethod specs to shared behavior
 
 * [ ] Get vanilla AR 1->1 migration working.
 
@@ -100,6 +109,37 @@
 * [ ] Extract MigrationRegistry. Moving this down because while it's a
   pretty obvious wart in Migratrix, it's a *tiny* obvious wart.
 
+# Problems For Later #
+
+* Problem for later: What happens if we're doing a BFQ join query in
+  batches of 1000, and each Load record is comprised of rand(100) rows
+  in the SQL input, and a Load record spans the 1000 input rows?
+  
+* Problem for later: Consider lazy streams? Say we're migrating
+  projects and tasks, and instead of saying limit=10 and getting 10
+  tasks and taking our chances on however many projects that gets us,
+  we say limit=10 *projects*. With lazy streams, instead of querying
+  10 rows, we tell the loader something like 10.times { load_next },
+  and it would get the next project and ALL of its tasks. The
+  implication here is that you could get 5 tasks or 5,000; all you
+  know for sure is that you got 10 projects. Since in this case
+  migrating a Project makes sense as a cohesive unit, I think that's
+  okay. (Also, todo for later, we could have options get steered to
+  the appropriate areas, like projects:limit=10, tasks:limit=10, and
+  now you'd get 10 projects with at most 10 tasks each. A seductively
+  dark implication of this is that Load gets first crack at the
+  options, and then decides which options get sent to which transforms
+  and how, and how options get sent to the extractor.)
+  
+* Problem for later: JS (GW license)
+
+* [ ] Refactor valid_options into a class method so you can say
+
+    class Map < Transform
+      valid_options "map", "foo", "bar"
+      
+  and have it magically mix itself into Transform's valid_options
+  chain, and autosort, etc.
 
 # TODON'T (YET) #
 

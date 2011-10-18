@@ -20,5 +20,8 @@ module Migratrix
 
   require APP + 'extractors/extractor'
   require APP + 'extractors/active_record'
+
+  require APP + 'transforms/transform'
+  require APP + 'transforms/map'
 end
 

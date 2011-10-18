@@ -1,11 +1,8 @@
-#require 'active_model/attribute_methods'
-
 module Migratrix
   module Extractors
     # base class for extraction
     class Extractor
       include ::Migratrix::Loggable
-#      include ActiveModel::AttributeMethods
 
       attr_accessor :source, :options
 

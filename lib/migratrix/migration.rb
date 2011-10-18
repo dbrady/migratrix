@@ -7,7 +7,6 @@ module Migratrix
     include ::Migratrix::Loggable
     include ActiveModel::AttributeMethods
 
-    cattr_accessor :extractor
     attr_accessor :options
 
     def initialize(options={})
@@ -36,12 +35,38 @@ module Migratrix
       @extractor = ::Migratrix::Extractors::ActiveRecord.new(options)
     end
 
+    def self.extractor=(name)
+      # usually only used to clear out the extractor...
+      if name
+        self.set_extractor(name)
+      else
+        @extractor = nil
+      end
+    end
+
     def self.extractor
       @extractor
     end
 
     def extractor
       self.class.extractor
+    end
+
+    def self.set_transform(name, type, options={})
+      @transforms ||= []
+      transform = case type
+                  when :map
+                    ::Migratrix::Transforms::Map.new(name, options)
+                  end
+      @transforms << transform if transform
+    end
+
+    def self.transforms
+      @transforms ||= []
+    end
+
+    def transforms
+      self.class.transforms
     end
 
     # OKAY, NEW RULE: You get ONE Extractor per Migration. You're
@@ -56,13 +81,18 @@ module Migratrix
       extractor.extract(options)
     end
 
-    # Transforms source data into outputs
+    # Transforms source data into outputs. @transformed_items is a
+    # hash of name => transformed_items.
+    #
     def transform
       # run the chain of transforms
     end
 
     # Saves the migrated data by "loading" it into our database or
-    # other data sink.
+    # other data sink. Loaders have their own names, and by default
+    # they depend on a transformed_items key of the same name, but you
+    # may override this behavior by setting :source => :name or
+    # possibly :source => [:name1, :name2, etc].
     def load
       # run the chain of loads
     end
