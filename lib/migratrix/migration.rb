@@ -97,7 +97,7 @@ module Migratrix
     # they depend on a transformed_items key of the same name, but you
     # may override this behavior by setting :source => :name or
     # possibly :source => [:name1, :name2, etc].
-    def load
+    def load(transformed_items)
       # run the chain of loads
     end
 
@@ -110,9 +110,11 @@ module Migratrix
     # extractor's execute_extract method to return source instead of
     # all, but now the
     def migrate
-      @extracted_items = extract
-      @transformed_items = transform @extracted_items
-      load
+      # This fn || @var API lets you write a method and either set the
+      # @var or return the value.
+      @extracted_items = extract || @extracted_items
+      @transformed_items = transform(@extracted_items) || @transformed_items
+      load @transformed_items
     end
   end
 end
