@@ -17,5 +17,31 @@ describe Migratrix::Transforms::Map do
       transform.valid_options.should == ["target", "transform"]
     end
   end
+
+  describe "with pet types fixture" do
+    let(:extracted_pets) {
+      [
+        { :pet_type_id => 42, :pet_species => 'Dog' },
+        { :pet_type_id => 43, :pet_species => 'Cat' },
+        { :pet_type_id => 44, :pet_species => 'Rat' },
+        { :pet_type_id => 45, :pet_species => 'Parrot' }
+      ]
+    }
+    let(:map) {  { :id => :pet_type_id, :name => :pet_species } }
+    let(:expected_transform) { {
+        42 => { :id => 42, :name => 'Dog' },
+        43 => { :id => 43, :name => 'Cat' },
+        44 => { :id => 44, :name => 'Rat' },
+        45 => { :id => 45, :name => 'Parrot' }
+      }
+    }
+    let(:transform) { Migratrix::Transforms::Map.new(:pet_types, :transform => map) }
+
+    it "transforms data correctly" do
+      with_logging_to(StringIO.new) do
+        transform.transform(extracted_pets).should == expected_transform
+      end
+    end
+  end
 end
 

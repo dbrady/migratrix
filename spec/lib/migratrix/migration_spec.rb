@@ -44,6 +44,14 @@ describe Migratrix::Migration do
     end
   end
 
+  describe "#extractor=" do
+    it "sets extractor" do
+      Migratrix::Extractors::ActiveRecord.should_receive(:new).with({}).and_return(mock_extractor)
+      Migratrix::TestMigration.extractor = :active_record
+      Migratrix::TestMigration.new.extractor.should == mock_extractor
+    end
+  end
+
   describe "with mock map transform" do
     let(:map) { { :id => :id, :name => :name }}
     let(:mock_extractor) { mock("Migratrix::Extractors::ActiveRecord", :extract => [42,13,43,14], :valid_options => ["fetchall", "limit", "offset", "order", "where"])}
@@ -68,6 +76,7 @@ describe Migratrix::Migration do
         Migratrix::TestMigration.new.transforms.should == [transform1, transform2]
       end
     end
+
 
 #     describe "#transform" do
 #       it "delegates to each transforms" do

@@ -18,21 +18,20 @@ describe Migratrix::Transforms::Transform do
     end
   end
 
-  describe
 
-  # You know, with the exception of the not_implemented_methods list
-  # and the base object class, this could easily become a shared
-  # example group.
-
-#   describe "unimplemented methods:" do
-#     let(:base_transform) { Migratrix::Transforms::Transform.new }
-#     [].each do |method|
-#       describe "#{method}" do
-#         it "raises NotImplementedError" do
-#           lambda { base_transform.send(method, nil) }.should raise_error(NotImplementedError)
-#         end
-#       end
-#     end
-#   end
-
+  describe "unimplemented methods:" do
+    [ [:create_transformed_collection, []],
+      [:create_new_object, [:extracted_row]],
+      [:apply_attribute, [:object, :value, :attribute_or_apply]],
+      [:extract_attribute, [:object, :attribute_or_extract]],
+      [:store_transformed_object, [:object, :collection]] ].each do |method, args|
+      describe "#{method}(#{args.map(&:inspect)*','})" do
+        let(:object_with_not_implemented_methods) { Migratrix::Transforms::Transform.new(:brain_damaged_transform) }
+        it "raises NotImplementedError" do
+          lambda { object_with_not_implemented_methods.send(method, *args) }.should raise_error(NotImplementedError)
+        end
+      end
+    end
+  end
 end
+

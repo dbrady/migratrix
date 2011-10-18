@@ -8,7 +8,9 @@ module Migratrix
     # attribute on the source object or a Proc that receives the
     # entire extracted row and returns a value to be set.
     #
-    # :target: is the class of the target object.
+    # TODO: Right now map makes a lot of hard-coded assumptions as a
+    # result of the primary test case. Notably that target is a Hash,
+    # final class is a Hash keyed by transformed_object[:id], etc.
     #
     # TODO: Figure out how to do both of these strategies with Map:
     #
@@ -27,9 +29,29 @@ module Migratrix
     class Map < Transform
       attr_accessor :map
 
-      def initialize(options={})
+      def initialize(name, options={})
         super
-        @map = @options[:map]
+        @transformations = options[:transform]
+      end
+
+      def create_transformed_collection
+        Hash.new
+      end
+
+      def create_new_object(extracted_row)
+        Hash.new
+      end
+
+      def apply_attribute(object, value, attribute_or_apply)
+        object[attribute_or_apply] = value
+      end
+
+      def extract_attribute(object, attribute_or_extract)
+        object[attribute_or_extract]
+      end
+
+      def store_transformed_object(object, collection)
+        collection[object[:id]] = object
       end
     end
   end

@@ -84,8 +84,12 @@ module Migratrix
     # Transforms source data into outputs. @transformed_items is a
     # hash of name => transformed_items.
     #
-    def transform
-      # run the chain of transforms
+    def transform(extracted_items)
+      transformed_items = { }
+      transforms.each do |transform|
+        transformed_items[transform.name] = transform.transform extracted_items
+      end
+      transformed_items
     end
 
     # Saves the migrated data by "loading" it into our database or
@@ -107,7 +111,7 @@ module Migratrix
     # all, but now the
     def migrate
       @extracted_items = extract
-      transform
+      @transformed_items = transform @extracted_items
       load
     end
   end

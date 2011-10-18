@@ -45,7 +45,7 @@ module Migratrix
     # good enough, right? TODO: BENCHMARK THIS OR SOMETHING WHATEVER
     class Transform
       include ::Migratrix::Loggable
-      attr_accessor :name, :options
+      attr_accessor :name, :options, :transformations
 
       def initialize(name, options={})
         @name = name
@@ -74,7 +74,7 @@ module Migratrix
             apply_attribute(new_object, extract_attribute(extracted_object, attribute_or_extract), attribute_or_apply)
           end
           transformed_object = finalize_object(new_object)
-          store_transformed_object(transformed_object, collection)
+          store_transformed_object(transformed_object, transformed_collection)
         end
         info "Transform #{name} finished transform."
         transformed_collection
@@ -174,6 +174,8 @@ module Migratrix
       # Super Advanced Magic (YAGNI):
       # - instead of procs, take blocks and use define_method on them
       #   so they're faster.
+
+
       def create_transformed_collection
         raise NotImplementedError
       end
@@ -199,7 +201,6 @@ module Migratrix
       def store_transformed_object(object, collection)
         raise NotImplementedError
       end
-
     end
   end
 end

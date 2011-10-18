@@ -57,6 +57,16 @@ def with_logger(logger, &block)
   end
 end
 
+def with_logging_to(stream, &block)
+  begin
+    old_logger = Migratrix::Migratrix.logger
+    Migratrix::Migratrix.log_to stream
+    yield
+  ensure
+    Migratrix::Migratrix.logger = old_logger
+  end
+end
+
 RSpec.configure do |config|
   # == Mock Framework
   #
