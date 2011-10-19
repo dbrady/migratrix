@@ -48,6 +48,14 @@ module Migratrix
     ::Migratrix::Migratrix.extractors
   end
 
+  def self.register_transform(name, klass, init_options={})
+    ::Migratrix::Migratrix.register_transform(name, klass, init_options)
+  end
+
+  def self.transforms
+    ::Migratrix::Migratrix.transforms
+  end
+
   def self.reload_migration(name)
     ::Migratrix::Migratrix.reload_migration(name)
   end
@@ -67,5 +75,8 @@ module Migratrix
   # ----------------------------------------------------------------------
   # Register in-gem Components
   register_extractor :active_record, Extractors::ActiveRecord
+
+  register_transform :transform, Transforms::Transform
+  register_transform :map, Transforms::Map
 end
 

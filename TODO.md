@@ -1,45 +1,5 @@
 # TODO #
 
-* [x] BARF Extract Migratrix code into a central/main/controller
-  class.
-
-* [x] Fix the module-level API: `migrate!`, `logger` and `logger=` are
-  all that are really necessary; everything else people can go through
-  `Migratrix::Migratrix` to get at, or more likely directly to
-  `Migratrix::Migration`, etc.
-  
-* [x] Reinstate the logging stuff. Migratrix should log to STDOUT by
-  default, or somewhere else if redirected, and everything in the
-  Migratrix namespace should share/reuse that logger. Singletons,
-  anyone?
-  
-* [x] FIX the reinstated logging stuff to act like real loggers, so
-  that we can inject the `Rails.logger` or a `Logger.new($stdout)`
-  without having to muck about with streams.
-
-* [x] 100% code coverage, because I *can*.
-
-* [x] Parts of migratrix_spec.rb are testing migration.rb. Extract them.
-
-* [x] Go ahead and commit the included -> extend atrocity with
-  Loggable. It's annoying to have to `include Loggable; extend
-  Loggable::ClassMethods` everywhere I just want #log and .log.
-  _Better: just use ActiveSupport::Concern_.
-  
-* [x] Add Migration class name automatically to logging methods.
-
-* [x] Get AR->Yaml constants migration working.
-
-* [x] Extract out Extractor class
-
-* [x] Fix class instance buglet
-
-* [x] Extract out Transform class, transforms collection.
-
-* [ ] register_extractor, etc, so that we're not using magical load
-  paths. This lets others write their own Extractors, Transforms and
-  Loads, etc.
-  
 * [ ] Put dials and knobs (options) on Transform
 
 * [ ] Renege on the only-one-extractor idea. If you have data in two
@@ -154,6 +114,55 @@
   and have it magically mix itself into Transform's valid_options
   chain, and autosort, etc.
 
+# TODONE #
+
+This section is just a gathering place for done tasks so I can still
+feel a sense of accomplishment, but without having to wade through
+them all to get to the tasks that need doing.
+
+* [x] BARF Extract Migratrix code into a central/main/controller
+  class.
+
+* [x] Fix the module-level API: `migrate!`, `logger` and `logger=` are
+  all that are really necessary; everything else people can go through
+  `Migratrix::Migratrix` to get at, or more likely directly to
+  `Migratrix::Migration`, etc.
+  
+* [x] Reinstate the logging stuff. Migratrix should log to STDOUT by
+  default, or somewhere else if redirected, and everything in the
+  Migratrix namespace should share/reuse that logger. Singletons,
+  anyone?
+  
+* [x] FIX the reinstated logging stuff to act like real loggers, so
+  that we can inject the `Rails.logger` or a `Logger.new($stdout)`
+  without having to muck about with streams.
+
+* [x] 100% code coverage, because I *can*.
+
+* [x] Parts of migratrix_spec.rb are testing migration.rb. Extract them.
+
+* [x] Go ahead and commit the included -> extend atrocity with
+  Loggable. It's annoying to have to `include Loggable; extend
+  Loggable::ClassMethods` everywhere I just want #log and .log.
+  _Better: just use ActiveSupport::Concern_.
+  
+* [x] Add Migration class name automatically to logging methods.
+
+* [x] Get AR->Yaml constants migration working.
+
+* [x] Extract out Extractor class
+
+* [x] Fix class instance buglet
+
+* [x] Extract out Transform class, transforms collection.
+
+* [x] register_extractor, etc, so that we're not using magical load
+  paths. This lets others write their own Extractors, Transforms and
+  Loads, etc.
+
+^^^ New Done Stuff Goes here  
+
+
 # TODON'T (YET) #
 
 * [ ] Write generators, e.g. for
@@ -168,3 +177,8 @@ which should emit the struct class, constant, and initializer loader, e.g.
         EQUIPMENT = YAML.load_file(CONSTANTS_PATH + 'equipment.yml').inject({}) {|hash, object| hash[object[:id]] = Equipment.new(*object.values); hash }
 
 etc.
+
+* [ ] Register Extractor as an extractor, and allow overrides of
+  everything. Then go back and rebuild ActiveRecord using the builder
+  dsl.
+  

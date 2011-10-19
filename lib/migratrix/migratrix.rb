@@ -89,18 +89,36 @@ module Migratrix
       @registry ||= Hash[[:extractors,:loads,:migrations,:transforms].map {|key| [key, Registry.new]}]
     end
 
+    # --------------------
+    # extractors
     def self.extractors
       registry[:extractors]
-    end
-
-    # Factory
-    def self.extractor(name)
-      self.extractors.class_for(name).new(self.extractors.options_for(name))
     end
 
     def self.register_extractor(name, klass, options={})
       self.extractors.register(name, klass, options)
     end
+
+    def self.extractor(name)
+      self.extractors.class_for(name).new(self.extractors.options_for(name))
+    end
+    # --------------------
+
+    # --------------------
+    # transforms
+    def self.transforms
+      registry[:transforms]
+    end
+
+    def self.register_transform(name, klass, options={})
+      self.transforms.register(name, klass, options)
+    end
+
+    def self.transform(class_name, transform_name)
+      self.transforms.class_for(class_name).new(transform_name, self.transforms.options_for(class_name))
+    end
+    # --------------------
+
 
 
     def loaded?(name)

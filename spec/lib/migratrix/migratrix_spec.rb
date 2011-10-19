@@ -3,6 +3,9 @@ require 'spec_helper'
 class TestExtractor < Migratrix::Extractors::Extractor
 end
 
+class TestTransform < Migratrix::Transforms::Transform
+end
+
 describe Migratrix::Migratrix do
   let (:migratrix) { Migratrix::Migratrix.new }
 
@@ -53,7 +56,26 @@ describe Migratrix::Migratrix do
         Migratrix::Migratrix.extractor(:test_extractor).should == extractor
       end
     end
-  end
+
+    describe ".register_transform" do
+      before do
+        Migratrix::Migratrix.register_transform :test_transform, TestTransform, { :source => Object }
+      end
+
+      it "registers the transform" do
+        Migratrix::Migratrix.transforms.registered?(:test_transform).should be_true
+        Migratrix::Migratrix.transforms.class_for(:test_transform).should == TestTransform
+      end
+
+      it "creates the transform with given options" do
+        transform = TestTransform.new :monkeys
+        Migratrix::Migratrix.transforms.registered?(:test_transform).should be_true
+        Migratrix::Migratrix.transforms.class_for(:test_transform).should == TestTransform
+        TestTransform.should_receive(:new).with(:monkeys, { :source => Object }).and_return(transform)
+        Migratrix::Migratrix.transform(:test_transform, :monkeys).should == transform
+      end
+    end
+end
 
   describe ".migrations_path" do
     it "uses ./db/legacy by default" do
