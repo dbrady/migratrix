@@ -18,7 +18,6 @@ describe Migratrix::Transforms::Transform do
     end
   end
 
-
   describe "unimplemented methods:" do
     [ [:create_transformed_collection, []],
       [:create_new_object, [:extracted_row]],

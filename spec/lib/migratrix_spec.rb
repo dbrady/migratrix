@@ -9,7 +9,7 @@ describe Migratrix do
   end
 
   describe "convenience delegator methods" do
-    def spec_delegates_to_migratrix(method, *args)
+    def spec_delegates_to_migratrix_class(method, *args)
       if args.size > 0
         Migratrix::Migratrix.should_receive(method).with(*args).once
       else
@@ -35,33 +35,39 @@ describe Migratrix do
 
     describe ".logger" do
       it "delegates to Migratrix::Migratrix" do
-        spec_delegates_to_migratrix :logger
+        spec_delegates_to_migratrix_class :logger
       end
     end
 
     describe ".create_migration" do
       it "delegates to Migratrix::Migratrix" do
-        spec_delegates_to_migratrix :create_migration, :marbles, :source => Object
+        spec_delegates_to_migratrix_class :create_migration, :marbles, :source => Object
       end
     end
 
     describe ".logger=" do
       let (:logger) { Logger.new(StringIO.new) }
       it "delegates to Migratrix::Migratrix" do
-        spec_delegates_to_migratrix :logger=, logger
+        spec_delegates_to_migratrix_class :logger=, logger
       end
     end
 
     describe ".log_to" do
       let (:buffer) { StringIO.new }
       it "delegates to Migratrix::Migratrix" do
-        spec_delegates_to_migratrix :log_to, buffer
+        spec_delegates_to_migratrix_class :log_to, buffer
       end
     end
 
     describe ".reload_migration" do
       it "delegates to Migratrix::Migratrix" do
-        spec_delegates_to_migratrix :reload_migration, :marbles
+        spec_delegates_to_migratrix_class :reload_migration, :marbles
+      end
+    end
+
+    describe ".register_migration" do
+      it "delegates to Migratrix::Migratrix" do
+        spec_delegates_to_migratrix_class :register_migration, :marbles, Array, 3
       end
     end
   end

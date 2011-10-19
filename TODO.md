@@ -34,8 +34,21 @@
 
 * [x] Fix class instance buglet
 
-* [ ] Extract out Transform class, transforms collection.
+* [x] Extract out Transform class, transforms collection.
 
+* [ ] register_extractor, etc, so that we're not using magical load
+  paths. This lets others write their own Extractors, Transforms and
+  Loads, etc.
+  
+* [ ] Put dials and knobs (options) on Transform
+
+* [ ] Renege on the only-one-extractor idea. If you have data in two
+  sources--like a YAML file and a MongoDB, you really have to have 2
+  extractors. (Well, okay, you could write an Extractor that grabs
+  stuff from both sources but we already have this notion of named
+  transform and load streams, might as well have named extraction
+  streams.)
+  
 * [ ] Decide on default migratrix n-transform strategy: Do we have
   the transforms run sequentially, or do we attempt to have them
   process records in parallel?

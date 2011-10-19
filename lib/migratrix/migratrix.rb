@@ -1,32 +1,6 @@
 # Main "App" or Driver class for Migrating. Responsible for loading
 # and integrating all the parts of a migration.
 module Migratrix
-  include ::Migratrix::Loggable
-
-  def self.migrate!(name, options={})
-    ::Migratrix::Migratrix.migrate(name, options)
-  end
-
-  def self.create_migration(name, options={})
-    ::Migratrix::Migratrix.create_migration(name, options)
-  end
-
-  def self.reload_migration(name)
-    ::Migratrix::Migratrix.reload_migration(name)
-  end
-
-  def self.logger
-    ::Migratrix::Migratrix.logger
-  end
-
-  def self.logger=(new_logger)
-    ::Migratrix::Migratrix.logger = new_logger
-  end
-
-  def self.log_to(stream)
-    ::Migratrix::Migratrix.log_to(stream)
-  end
-
   class Migratrix
     include ::Migratrix::Loggable
 
@@ -111,6 +85,24 @@ module Migratrix
 
     # ----------------------------------------------------------------------
     # Candidate for exract class? MigrationRegistry?
+    def self.registry
+      @registry ||= Hash[[:extractors,:loads,:migrations,:transforms].map {|key| [key, Registry.new]}]
+    end
+
+    def self.extractors
+      registry[:extractors]
+    end
+
+    # Factory
+    def self.extractor(name)
+      self.extractors.class_for(name).new(self.extractors.options_for(name))
+    end
+
+    def self.register_extractor(name, klass, options={})
+      self.extractors.register(name, klass, options)
+    end
+
+
     def loaded?(name)
       registered_migrations.key? name.to_s
     end

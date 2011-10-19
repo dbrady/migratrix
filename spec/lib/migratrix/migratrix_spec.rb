@@ -1,5 +1,8 @@
 require 'spec_helper'
 
+class TestExtractor < Migratrix::Extractors::Extractor
+end
+
 describe Migratrix::Migratrix do
   let (:migratrix) { Migratrix::Migratrix.new }
 
@@ -30,6 +33,25 @@ describe Migratrix::Migratrix do
 
     it "raises fetch error when fetching unregistered migration" do
       lambda { migratrix.fetch_migration("arglebargle") }.should raise_error(KeyError)
+    end
+
+    describe ".register_extractor" do
+      before do
+        Migratrix::Migratrix.register_extractor :test_extractor, TestExtractor, { :source => Object }
+      end
+
+      it "registers the extractor" do
+        Migratrix::Migratrix.extractors.registered?(:test_extractor).should be_true
+        Migratrix::Migratrix.extractors.class_for(:test_extractor).should == TestExtractor
+      end
+
+      it "creates the extractor with given options" do
+        extractor = TestExtractor.new
+        Migratrix::Migratrix.extractors.registered?(:test_extractor).should be_true
+        Migratrix::Migratrix.extractors.class_for(:test_extractor).should == TestExtractor
+        TestExtractor.should_receive(:new).with({ :source => Object }).and_return(extractor)
+        Migratrix::Migratrix.extractor(:test_extractor).should == extractor
+      end
     end
   end
 
