@@ -65,10 +65,22 @@ describe Migratrix do
       end
     end
 
-    describe ".register_migration" do
+    describe ".register_extractor" do
       it "delegates to Migratrix::Migratrix" do
-        spec_delegates_to_migratrix_class :register_migration, :marbles, Array, 3
+        spec_delegates_to_migratrix_class :register_extractor, :marbles, Array, 3
       end
+    end
+
+    describe ".extractors" do
+      it "delegates to Migratrix::Migratrix" do
+        spec_delegates_to_migratrix_class :extractors
+      end
+    end
+  end
+
+  describe "gem-installed components" do
+    it "registers :active_record migration" do
+      Migratrix.extractors.class_for(:active_record).should == ::Migratrix::Extractors::ActiveRecord
     end
   end
 end

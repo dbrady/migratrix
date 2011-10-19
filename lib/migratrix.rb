@@ -22,8 +22,6 @@ module Migratrix
   require APP + 'extractors/extractor'
   require APP + 'extractors/active_record'
 
-#  register_extractor :active_record, Migratrix::Migrations::ActiveRecord
-
   require APP + 'transforms/transform'
   require APP + 'transforms/map'
 
@@ -42,6 +40,14 @@ module Migratrix
     ::Migratrix::Migratrix.register_migration(name, klass, init_options)
   end
 
+  def self.register_extractor(name, klass, init_options={})
+    ::Migratrix::Migratrix.register_extractor(name, klass, init_options)
+  end
+
+  def self.extractors
+    ::Migratrix::Migratrix.extractors
+  end
+
   def self.reload_migration(name)
     ::Migratrix::Migratrix.reload_migration(name)
   end
@@ -57,5 +63,9 @@ module Migratrix
   def self.log_to(stream)
     ::Migratrix::Migratrix.log_to(stream)
   end
+
+  # ----------------------------------------------------------------------
+  # Register in-gem Components
+  register_extractor :active_record, Extractors::ActiveRecord
 end
 
