@@ -2,17 +2,15 @@
 
 * [ ] Load
 
+* [ ] Load::YAML
+
 * [ ] Change over all Client constant migrations
   * [ ] Delete config/constants/*.yml
   * [ ] Change Client constants initted to load hash, not array
   * [ ] Create migrators for the others
   * [ ] Regenerate new ymls
 
-End Quickies
-
-* [ ] Add nicer (Phase 3) syntax to Transform options. E.g.
-  `transform_class` doesn't have to be a lambdba, it could actually BE
-  a class....
+* [ ] Load::ActiveRecord
 
 * [ ] Basically rip out the Migratrix class as much as possible. It's
   making more and more sense to just have people say
@@ -184,7 +182,11 @@ them all to get to the tasks that need doing.
   
 * [*] Put dials and knobs (options) on Transform
 
-* [*] nicer Transform options, e.g. transform_class: Hash
+* [*] Add nicer (Phase 3) syntax to Transform options. E.g.
+  `transform_class` doesn't have to be a lambdba, it could actually BE
+  a class....
+
+
 
 
 ^^^ New Done Stuff Goes here  

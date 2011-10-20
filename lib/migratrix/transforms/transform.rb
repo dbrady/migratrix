@@ -67,14 +67,8 @@ module Migratrix
         @transformations = options[:transform]
       end
 
+      # Name of the extractor to use. If omitted, returns our name.
       def extractor
-        # TODO: This is still a 1-extractor-per-transform model, but
-        # as these represent the vast majority of transforms, I don't
-        # want to complicate things by having each transformer handle
-        # all extractors. The implication of this right now is that we
-        # can't handle multiple extractors at all. (Actually, it can
-        # be done by writing a MultiExtract < Transform class that has
-        # its own transform method, etc.)
         options[:extractor] || name
       end
 
@@ -82,21 +76,7 @@ module Migratrix
       # expect it to be slow, but we can optimize it later, e.g. by
       # rolling out a define_method or similar for all of the constant
       # parts.
-      def transform(extracted_objects={})
-        info "Transform #{name} started transform."
-        transformed_collection = create_transformed_collection
-        extracted_objects.each do |extracted_object|
-          new_object = create_new_object(extracted_object)
-          transformations.each do |attribute_or_apply, attribute_or_extract|
-            apply_attribute(new_object, attribute_or_apply, extract_attribute(extracted_object, attribute_or_extract))
-          end
-          transformed_object = finalize_object(new_object)
-          store_transformed_object(transformed_object, transformed_collection)
-        end
-        info "Transform #{name} finished transform."
-        transformed_collection
-      end
-
+      #
       # ----------------------------------------------------------------------
       # Map's strategy, as used by PetsMigration
       #
@@ -108,7 +88,7 @@ module Migratrix
       # finalize_object -> no-op
       # store_transformed_object -> collection[object[:id]] = object
       # ----------------------------------------------------------------------
-
+      #
       # ----------------------------------------------------------------------
       # Default strategy:
       #
@@ -120,8 +100,8 @@ module Migratrix
       # finalize_object -> no-op
       # store_transformed_object -> collection << transformed_object
       # ----------------------------------------------------------------------
-
-
+      #
+      #
       # Now, can we represent these two strategies as configurations
       # in the migration? For example, here's one way of representing
       # PetTypeMigration's strategy, which in the Load step must save
@@ -179,9 +159,6 @@ module Migratrix
       #     (That would be HORRIBLY inefficient but there would be
       #     ways to memoize with e.g. before_finalize { @keys =
       #     ModelClass.new.attributes.keys })
-
-
-
       #
       # Advanced Magic:
       # - new_class, collection can be procs returning a new object
@@ -191,20 +168,21 @@ module Migratrix
       # Super Advanced Magic (YAGNI):
       # - instead of procs, take blocks and use define_method on them
       #   so they're faster.
+      def transform(extracted_objects={})
+        info "Transform #{name} started transform."
+        transformed_collection = create_transformed_collection
+        extracted_objects.each do |extracted_object|
+          new_object = create_new_object(extracted_object)
+          transformations.each do |attribute_or_apply, attribute_or_extract|
+            apply_attribute(new_object, attribute_or_apply, extract_attribute(extracted_object, attribute_or_extract))
+          end
+          transformed_object = finalize_object(new_object)
+          store_transformed_object(transformed_object, transformed_collection)
+        end
+        info "Transform #{name} finished transform."
+        transformed_collection
+      end
 
-
-
-
-#     set_transform :repetition_types, :transform, {
-#       extractor: :repetition_types,
-#       transform: { :id => :id, :name => :name },
-#       transform_collection: -> { Hash.new },
-#       transform_class:  -> { Hash.new },
-#       extract_attribute:  ->(object, attribute) { object[attribute] }
-#       apply_attribute: ->(object, attribute, value) { object[attribute] = value }
-#       final_class: nil,
-#       finalize_object: nil,
-#       store_transformed_object: -> (object, collection) { collection[object[:id]] = object }
 
       def create_transformed_collection
         raise NotImplementedError unless options[:transform_collection]
@@ -259,17 +237,15 @@ module Migratrix
         end
       end
 
-      # finalize_object is optional; if you are using the "start with
-      # a blank object and build it up" strategy, it's a no-op.
-      def finalize_object(new_object)
-        return new_object unless options[:final_class] || options[:finalize_object]
-        raise TypeError if options[:finalize_object] && !options[:finalize_object].is_a?(Proc)
-        raise TypeError if options[:final_class] && !options[:final_class].is_a?(Class)
 
       #   Both Missing: final_object = new_object
       #   :final_class only: final_obj = FinalClass.new(new_obj)
       #   :finalize only: final_obj = finalize(new_obj)
       #   Both Present: final_obj = FinalClass.new(finalize(obj))
+      def finalize_object(new_object)
+        return new_object unless options[:final_class] || options[:finalize_object]
+        raise TypeError if options[:finalize_object] && !options[:finalize_object].is_a?(Proc)
+        raise TypeError if options[:final_class] && !options[:final_class].is_a?(Class)
         new_object = options[:finalize_object].call(new_object) if options[:finalize_object]
         new_object = options[:final_class].new(new_object) if options[:final_class]
         new_object
