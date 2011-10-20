@@ -11,10 +11,10 @@ describe Migratrix::Transforms::Transform do
     end
   end
 
-  describe "#valid_options" do
-    let(:base_transform) { Migratrix::Transforms::Transform.new(:base_transform) }
+  describe ".local_valid_options" do
+    let(:base_transform) { Migratrix::Transforms::Transform }
     it "returns the valid set of option keys" do
-      base_transform.valid_options.should == ["extractor", "target", "transform"]
+      Migratrix::Transforms::Transform.local_valid_options.should == [:apply_attribute, :extract_attribute, :extractor, :final_class, :finalize_object, :store_transform, :target, :transform, :transform_class, :transform_collection]
     end
   end
 

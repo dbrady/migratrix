@@ -45,21 +45,26 @@ module Migratrix
     # good enough, right? TODO: BENCHMARK THIS OR SOMETHING WHATEVER
     class Transform
       include ::Migratrix::Loggable
+      include ::Migratrix::ValidOptions
       attr_accessor :name, :options, :extractor, :transformations
+
+      set_valid_options *(%w(apply_attribute extract_attribute extractor final_class finalize_object store_transform target transform transform_class transform_collection))
 
       def initialize(name, options={})
         @name = name
         @options = options.deep_copy
       end
 
-      # remember, if you override valid_options in a child class, call
-      # (super + <your_options>).sort
-      # TODO: Can this be magicked into a class method, e.g.
-      # valid_options ["target", "transform"]
-      # that mixes itself in with the chain?
-      def valid_options
-        ["extractor", "target", "transform"]
-      end
+#     set_transform :repetition_types, :transform, {
+#       extractor: :repetition_types,
+#       transform: { :id => :id, :name => :name },
+#       transform_collection: -> { Hash.new },
+#       transform_class:  -> { Hash.new },
+#       extract_attribute:  ->(object, attribute) { object[attribute] }
+#       apply_attribute: ->(object, attribute, value) { object[attribute] = value }
+#       final_class: nil,
+#       finalize_object: nil,
+#       store_transformed_object: -> (object, collection) { collection[object[:id]] = object }
 
       def extractor
         # TODO: This is still a 1-extractor-per-transform model, but
@@ -102,6 +107,17 @@ module Migratrix
       # finalize_object -> no-op
       # store_transformed_object -> collection[object[:id]] = object
       # ----------------------------------------------------------------------
+
+#     set_transform :repetition_types, :transform, {
+#       extractor: :repetition_types,
+#       transform: { :id => :id, :name => :name },
+#       transform_collection: -> { Hash.new },
+#       transform_class:  -> { Hash.new },
+#       extract_attribute:  ->(object, attribute) { object[attribute] }
+#       apply_attribute: ->(object, attribute, value) { object[attribute] = value }
+#       final_class: nil,
+#       finalize_object: nil,
+#       store_transformed_object: -> (object, collection) { collection[object[:id]] = object }
 
       # ----------------------------------------------------------------------
       # Default strategy:

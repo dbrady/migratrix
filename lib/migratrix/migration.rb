@@ -10,11 +10,7 @@ module Migratrix
     attr_accessor :options
 
     def initialize(options={})
-      @options = filter_options(options.deep_copy)
-    end
-
-    def filter_options(hash)
-      Hash[valid_options.map {|v| hash.key?(v) ? [v, hash[v]] : nil }.compact]
+      @options = options.deep_copy.symbolize_keys
     end
 
     # TODO: Technically, we need to ask our extractor, transformers

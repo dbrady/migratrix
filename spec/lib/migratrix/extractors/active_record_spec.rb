@@ -28,9 +28,15 @@ describe Migratrix::Extractors::ActiveRecord do
     end
   end
 
-  describe "#valid_options" do
+  describe ".local_valid_options" do
     it "returns the valid set of option keys" do
-      extractor.valid_options.should == ["fetchall", "limit", "offset", "order", "where"]
+      Migratrix::Extractors::ActiveRecord.local_valid_options.should == [:fetchall]
+    end
+  end
+
+  describe ".valid_options" do
+    it "returns the valid set of option keys" do
+      Migratrix::Extractors::ActiveRecord.valid_options.should == [:fetchall] + Migratrix::Extractors::Extractor.valid_options
     end
   end
 

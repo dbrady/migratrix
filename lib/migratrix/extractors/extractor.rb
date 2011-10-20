@@ -3,8 +3,11 @@ module Migratrix
     # base class for extraction
     class Extractor
       include ::Migratrix::Loggable
+      include ::Migratrix::ValidOptions
 
       attr_accessor :name, :source, :options
+
+      set_valid_options :limit, :offset, :order, :where
 
       def initialize(name, options={})
         @options = options.deep_copy
@@ -12,23 +15,20 @@ module Migratrix
       end
 
       def extract(options={})
-        options = @options.merge(options)
+        options = @options.merge(options).symbolize_keys
 
         # TODO: Raise error if self.abstract? DANGER/NOTE that this is
         # the "default strategy" for extraction, and may need to be
         # extracted to a strategy object.
 
         src = obtain_source(self.source, options)
-        src = handle_where(src, options["where"]) if options["where"]
-        src = handle_order(src, options["order"]) if options["order"]
-        src = handle_limit(src, options["limit"]) if options["limit"]
-        src = handle_offset(src, options["offset"]) if options["offset"]
+        src = handle_where(src, options[:where]) if options[:where]
+        src = handle_order(src, options[:order]) if options[:order]
+        src = handle_limit(src, options[:limit]) if options[:limit]
+        src = handle_offset(src, options[:offset]) if options[:offset]
         execute_extract(src, options)
       end
 
-      def valid_options
-        opts = %w(limit offset order where)
-      end
 
     # = extraction filter methods
       #

@@ -11,10 +11,9 @@ describe Migratrix::Extractors::Extractor do
     end
   end
 
-  describe "#valid_options" do
-    let(:base_extractor) { Migratrix::Extractors::Extractor.new :test }
+  describe ".local_valid_options" do
     it "returns the valid set of option keys" do
-      base_extractor.valid_options.should == ["limit", "offset", "order", "where"]
+      Migratrix::Extractors::Extractor.local_valid_options.should == [:limit, :offset, :order, :where]
     end
   end
 
@@ -40,7 +39,7 @@ describe Migratrix::Extractors::Extractor do
     end
 
     describe "with all options" do
-      let(:options) { { "where" => 1, "order" => 2, "limit" => 3, "offset" => 4 } }
+      let(:options) { { :where => 1, :order => 2, :limit => 3, :offset => 4 } }
       let(:extractor) { TestExtractor.new :test, options }
       it "should call entire handler chain" do
         extractor.should_receive(:obtain_source).with(nil, options).and_return("A")
@@ -54,9 +53,9 @@ describe Migratrix::Extractors::Extractor do
     end
 
     describe "with overridden options" do
-      let(:options) { { "where" => 1, "order" => 2, "limit" => 3, "offset" => 4 } }
+      let(:options) { { :where => 1, :order => 2, :limit => 3, :offset => 4 } }
       let(:extractor) { TestExtractor.new :test, options }
-      let(:overrides) { {"where" => 5, "order" => 6, "limit" => 7, "offset" => 8 } }
+      let(:overrides) { {:where => 5, :order => 6, :limit => 7, :offset => 8 } }
       it "should call entire handler chain" do
         extractor.should_receive(:obtain_source).with(nil, overrides).and_return("A")
         extractor.should_receive(:handle_where).with("A", 5).and_return("B")

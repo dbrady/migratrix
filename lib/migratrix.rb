@@ -10,6 +10,7 @@ module Migratrix
   require EXT + 'object_ext'
   require EXT + 'andand'
   require APP + 'loggable'
+  require APP + 'valid_options'
   require APP + 'exceptions'
   require APP + 'registry'
   require APP + 'migration'
