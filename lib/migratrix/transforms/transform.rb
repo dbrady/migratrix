@@ -45,7 +45,7 @@ module Migratrix
     # good enough, right? TODO: BENCHMARK THIS OR SOMETHING WHATEVER
     class Transform
       include ::Migratrix::Loggable
-      attr_accessor :name, :options, :transformations
+      attr_accessor :name, :options, :extractor, :transformations
 
       def initialize(name, options={})
         @name = name
@@ -58,14 +58,25 @@ module Migratrix
       # valid_options ["target", "transform"]
       # that mixes itself in with the chain?
       def valid_options
-        ["target", "transform"]
+        ["extractor", "target", "transform"]
+      end
+
+      def extractor
+        # TODO: This is still a 1-extractor-per-transform model, but
+        # as these represent the vast majority of transforms, I don't
+        # want to complicate things by having each transformer handle
+        # all extractors. The implication of this right now is that we
+        # can't handle multiple extractors at all. (Actually, it can
+        # be done by writing a MultiExtract < Transform class that has
+        # its own transform method, etc.)
+        options[:extractor] || name
       end
 
       # This transform method has strategy magic at every turn. I
       # expect it to be slow, but we can optimize it later, e.g. by
       # rolling out a define_method or similar for all of the constant
       # parts.
-      def transform(extracted_objects=[])
+      def transform(extracted_objects={})
         info "Transform #{name} started transform."
         transformed_collection = create_transformed_collection
         extracted_objects.each do |extracted_object|

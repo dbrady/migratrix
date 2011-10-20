@@ -7,49 +7,6 @@ module Migratrix
     def initialize
     end
 
-    def self.migrate(name, options={})
-      migratrix = self.new()
-      ::Migratrix::Migratrix.log_to($stdout) if options['console']
-      migration = migratrix.create_migration(name, options)
-      migration.migrate
-      migratrix
-    end
-
-    def self.create_migration(name, options={})
-      migratrix = self.new()
-      migratrix.create_migration(name, options)
-    end
-
-    # Loads #{name}_migration.rb from migrations path, instantiates
-    # #{Name}Migration with options, and returns it.
-    def create_migration(name, options={})
-      options = options.deep_copy
-      klass_name = migration_name(name)
-      unless loaded?(klass_name)
-        raise MigrationAlreadyExists.new("Migratrix cannot instantiate class Migratrix::#{klass_name} because it already exists") if ::Migratrix.const_defined?(klass_name)
-        reload_migration name
-        raise MigrationNotDefined.new("Expected migration file #{filename} to define Migratrix::#{klass_name} but it did not") unless ::Migratrix.const_defined?(klass_name)
-        register_migration(klass_name, "Migratrix::#{klass_name}".constantize)
-      end
-      fetch_migration(klass_name).new(options)
-    end
-
-    def migration_name(name)
-      name = name.to_s
-      name = if name.plural?
-               name.classify.pluralize
-             else
-               name.classify
-             end
-      name + "Migration"
-    end
-
-    def reload_migration(name)
-      filename = migrations_path + "#{name}_migration.rb"
-      raise MigrationFileNotFound.new("Migratrix cannot find migration file #{filename}") unless File.exists?(filename)
-      load filename
-    end
-
     # ----------------------------------------------------------------------
     # Logger singleton; tries to hook into Rails.logger if it exists (it
     # won't if you log anything during startup because Migratrix is
@@ -69,15 +26,15 @@ module Migratrix
 
     def self.init_logger
       return Rails.logger if Rails.logger
-      @@logger = create_logger($stdout)
+      @logger = create_logger($stdout)
     end
 
     def self.logger
-      @@logger ||= self.init_logger
+      @logger ||= self.init_logger
     end
 
     def self.logger=(new_logger)
-      @@logger = new_logger
+      @logger = new_logger
     end
     # ----------------------------------------------------------------------
 
@@ -95,12 +52,12 @@ module Migratrix
       registry[:extractors]
     end
 
-    def self.register_extractor(name, klass, options={})
-      self.extractors.register(name, klass, options)
+    def self.register_extractor(class_name, klass, options={})
+      self.extractors.register(class_name, klass, options)
     end
 
-    def self.extractor(name)
-      self.extractors.class_for(name).new(self.extractors.options_for(name))
+    def self.extractor(class_name, extractor_name, options={})
+      self.extractors.class_for(class_name).new(extractor_name, options)
     end
     # --------------------
 
@@ -114,37 +71,12 @@ module Migratrix
       self.transforms.register(name, klass, options)
     end
 
-    def self.transform(class_name, transform_name)
-      self.transforms.class_for(class_name).new(transform_name, self.transforms.options_for(class_name))
+    def self.transform(transform_name, class_name, options={})
+      self.transforms.class_for(class_name).new(transform_name, options)
     end
     # --------------------
 
-
-
-    def loaded?(name)
-      registered_migrations.key? name.to_s
-    end
-
-    def register_migration(name, klass)
-      registered_migrations[name.to_s] = klass
-    end
-
-    def fetch_migration(name)
-      registered_migrations.fetch name.to_s
-    end
-
-    def registered_migrations
-      @@registered_migrations ||= {}
-    end
     # End MigrationRegistry
     # ----------------------------------------------------------------------
-
-    def migrations_path
-      @migrations_path ||= ::Migratrix.default_migrations_path
-    end
-
-    def migrations_path=(new_path)
-      @migrations_path = Pathname.new new_path
-    end
   end
 end

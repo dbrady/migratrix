@@ -6,10 +6,6 @@ module Migratrix
   APP=Pathname.new(__FILE__).dirname + "migratrix"
   EXT=Pathname.new(__FILE__).dirname + "patches"
 
-  def self.default_migrations_path
-    Rails.root + 'db/legacy'
-  end
-
   require EXT + 'string_ext'
   require EXT + 'object_ext'
   require EXT + 'andand'
@@ -28,18 +24,6 @@ module Migratrix
 
   include ::Migratrix::Loggable
 
-  def self.migrate!(name, options={})
-    ::Migratrix::Migratrix.migrate(name, options)
-  end
-
-  def self.create_migration(name, options={})
-    ::Migratrix::Migratrix.create_migration(name, options)
-  end
-
-  def self.register_migration(name, klass, init_options={})
-    ::Migratrix::Migratrix.register_migration(name, klass, init_options)
-  end
-
   def self.register_extractor(name, klass, init_options={})
     ::Migratrix::Migratrix.register_extractor(name, klass, init_options)
   end
@@ -54,10 +38,6 @@ module Migratrix
 
   def self.transforms
     ::Migratrix::Migratrix.transforms
-  end
-
-  def self.reload_migration(name)
-    ::Migratrix::Migratrix.reload_migration(name)
   end
 
   def self.logger

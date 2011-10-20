@@ -8,7 +8,7 @@ class TestActiveRecordExtractor < Migratrix::Extractors::ActiveRecord
 end
 
 describe Migratrix::Extractors::ActiveRecord do
-  let(:extractor) { TestActiveRecordExtractor.new }
+  let(:extractor) { TestActiveRecordExtractor.new :test }
   describe "sanity check cat" do
     it "is sanity checked" do
       Migratrix::Extractors::Extractor.should_not be_nil
@@ -18,7 +18,7 @@ describe Migratrix::Extractors::ActiveRecord do
 
   describe ".new" do
     it "raises TypeError unless source is Active" do
-      lambda { TestActiveRecordExtractor.new :source => Object }.should raise_error(TypeError)
+      lambda { TestActiveRecordExtractor.new :test, :source => Object }.should raise_error(TypeError)
     end
   end
 
@@ -95,7 +95,7 @@ describe Migratrix::Extractors::ActiveRecord do
     end
 
     describe "with 'fetchall' option" do
-      let(:extractor) { TestActiveRecordExtractor.new "fetchall" => true }
+      let(:extractor) { TestActiveRecordExtractor.new :test, "fetchall" => true }
 
       describe "and source is an ActiveRelation" do
         it "calls all on the relation" do

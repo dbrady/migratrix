@@ -22,12 +22,6 @@ describe Migratrix::Registry do
         registry.class_for(:test).should == Array
       end
     end
-
-    describe "#options_for" do
-      it "returns the registered options" do
-        registry.options_for(:test).should == 3
-      end
-    end
   end
 end
 

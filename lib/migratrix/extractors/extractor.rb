@@ -4,9 +4,9 @@ module Migratrix
     class Extractor
       include ::Migratrix::Loggable
 
-      attr_accessor :source, :options
+      attr_accessor :name, :source, :options
 
-      def initialize(options={})
+      def initialize(name, options={})
         @options = options.deep_copy
         self.source = options[:source] if options[:source]
       end

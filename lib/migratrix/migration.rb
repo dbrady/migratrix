@@ -23,62 +23,56 @@ module Migratrix
     # an ActiveRecord-specific option
     def valid_options
       opts = %w(console)
-      opts += extractor.valid_options if extractor
-      opts.sort
+      if extractors
+        extractors.each do |name, extractor|
+          opts += extractor.valid_options
+        end
+      end
+      if transforms
+        transforms.each do |name, transform|
+          opts += transform.valid_options
+        end
+      end
+#       if loads
+#         loads.each do |name, load|
+#           opts += load.valid_options
+#         end
+#       end
+      opts.uniq.sort
     end
 
     # Sets the extractor (unlike transform and load, which have
     # chains, there is only one Extractor per Migration)
-    def self.set_extractor(name, options={})
-      # TODO: use name to pick from list of extractors. Currently we only have the one.
-      raise NotImplementedError.new("Migratrix currently only supports ActiveRecord extractor.") unless name == :active_record
-      @extractor = ::Migratrix::Extractors::ActiveRecord.new(options)
+    def self.set_extractor(extractor_name, class_name, options={})
+      extractors[extractor_name] = Migratrix.extractor(class_name, extractor_name, options)
     end
 
-    def self.extractor=(name)
-      # usually only used to clear out the extractor...
-      if name
-        self.set_extractor(name)
-      else
-        @extractor = nil
-      end
+    def self.extractors
+      @extractors ||= {}
     end
 
-    def self.extractor
-      @extractor
-    end
-
-    def extractor
-      self.class.extractor
+    def extractors
+      self.class.extractors
     end
 
     def self.set_transform(name, type, options={})
-      @transforms ||= []
-      transform = case type
-                  when :map
-                    ::Migratrix::Transforms::Map.new(name, options)
-                  end
-      @transforms << transform if transform
+      transforms[name] = Migratrix.transform(name, type, options)
     end
 
     def self.transforms
-      @transforms ||= []
+      @transforms ||= {}
     end
 
     def transforms
       self.class.transforms
     end
 
-    # OKAY, NEW RULE: You get ONE Extractor per Migration. You're
-    # allowed to have multiple transform/load chains to the
-    # extraction, but extractors? ONE.
-
-    # default extraction method; simply assigns @extractor.extract to
-    # @extracted_items. If you override this method, you should
-    # populate @extracted_items if you want the default transform
-    # and/or load to work correctly.
     def extract
-      extractor.extract(options)
+      extracted_items = {}
+      extractors.each do |name, extractor|
+        extracted_items[name] = extractor.extract(options)
+      end
+      extracted_items
     end
 
     # Transforms source data into outputs. @transformed_items is a
@@ -86,20 +80,24 @@ module Migratrix
     #
     def transform(extracted_items)
       transformed_items = { }
-      transforms.each do |transform|
-        transformed_items[transform.name] = transform.transform extracted_items
+      transforms.each do |name, transform|
+        transformed_items[transform.name] = transform.transform extracted_items[transform.extractor]
       end
       transformed_items
     end
 
-    # Saves the migrated data by "loading" it into our database or
-    # other data sink. Loaders have their own names, and by default
-    # they depend on a transformed_items key of the same name, but you
-    # may override this behavior by setting :source => :name or
-    # possibly :source => [:name1, :name2, etc].
-    def load(transformed_items)
-      # run the chain of loads
-    end
+#     # Saves the migrated data by "loading" it into our database or
+#     # other data sink. Loaders have their own names, and by default
+#     # they depend on a transformed_items key of the same name, but you
+#     # may override this behavior by setting :source => :name or
+#     # possibly :source => [:name1, :name2, etc].
+#     def load(transformed_items)
+#       loaded_items = { }
+#       loads.each do |name, load|
+#         transformed_items[load.name] = load.load extracted_items
+#       end
+#       loaded_items
+#     end
 
     # Perform the migration
     # TODO: turn this into a strategy object. This pattern migrates

@@ -2,12 +2,20 @@
 
 * [ ] Put dials and knobs (options) on Transform
 
-* [ ] Renege on the only-one-extractor idea. If you have data in two
+* [ ] Basically rip out the Migratrix class as much as possible. It's
+  making more and more sense to just have people say
+  MyMigration.migrate(options). It's a LOT more testable, too, than
+  having global magic load paths.
+
+* [x] Renege on the only-one-extractor idea. If you have data in two
   sources--like a YAML file and a MongoDB, you really have to have 2
   extractors. (Well, okay, you could write an Extractor that grabs
   stuff from both sources but we already have this notion of named
   transform and load streams, might as well have named extraction
   streams.)
+
+* [ ] Symbolize all the options keys and valid_options, or use
+  HashWithIndifferentAccess.
   
 * [ ] Decide on default migratrix n-transform strategy: Do we have
   the transforms run sequentially, or do we attempt to have them
@@ -20,11 +28,11 @@
   
 * [ ] Extract out Load class
 
-* [ ] Refactor NotImplementedMethod specs to shared behavior
-
 * [ ] Get vanilla AR 1->1 migration working.
 
 * [ ] Create before/after class methods and method call chains.
+
+* [ ] Use around filters to log main method calls
 
 * [ ] Consider having a `Migratrix::ModelBase < ActiveRecord::Base`
   base class with all the ActiveRecord migration helpers pre-mixed-in.
@@ -159,6 +167,8 @@ them all to get to the tasks that need doing.
 * [x] register_extractor, etc, so that we're not using magical load
   paths. This lets others write their own Extractors, Transforms and
   Loads, etc.
+
+* [%] Refactor NotImplementedMethod specs to shared behavior
 
 ^^^ New Done Stuff Goes here  
 

@@ -8,8 +8,7 @@ end
 describe Migratrix::Migration do
   let(:migration) { Migratrix::TestMigration.new :cheese => 42 }
   let(:loggable) { Migratrix::TestMigration.new }
-  let(:mock_extractor) { mock("Migratrix::Extractors::ActiveRecord", :extract => 43, :valid_options => ["fetchall", "limit", "offset", "order", "where"])}
-
+  let(:mock_extractor) { mock("Migratrix::Extractors::ActiveRecord", :name => :pets, :extract => 43, :valid_options => ["fetchall", "limit", "offset", "order", "where"])}
   it_should_behave_like "loggable"
 
   describe "#migrate" do
@@ -21,93 +20,87 @@ describe Migratrix::Migration do
     end
   end
 
-  describe "with mock active_record extractor" do
+  describe "with registered mock active_record extractor" do
     before do
-      Migratrix::Extractors::ActiveRecord.should_receive(:new).with({:source => Object}).and_return(mock_extractor)
-      Migratrix::TestMigration.set_extractor :active_record, :source => Object
+      Migratrix.extractors.should_receive(:class_for).with(:active_record).and_return(Migratrix::Extractors::ActiveRecord)
+      Migratrix::Extractors::ActiveRecord.should_receive(:new).with(:pets, { :source => Object }).and_return(mock_extractor)
+      Migratrix::TestMigration.set_extractor :pets, :active_record, :source => Object
     end
 
     describe ".set_extractor" do
       it "sets the class instance variable for extractor" do
-        Migratrix::TestMigration.extractor.should == mock_extractor
+        Migratrix::TestMigration.extractors[:pets].should == mock_extractor
       end
 
       it "also sets convenience instance method for extractor" do
-        Migratrix::TestMigration.new.extractor.should == mock_extractor
+        Migratrix::TestMigration.new.extractors[:pets].should == mock_extractor
       end
     end
 
     describe "#extract" do
       it "delegates to extractor" do
-        migration.extract.should == 43
+        migration.extract.should == { :pets => 43 }
       end
-    end
-  end
-
-  describe "#extractor=" do
-    it "sets extractor" do
-      Migratrix::Extractors::ActiveRecord.should_receive(:new).with({}).and_return(mock_extractor)
-      Migratrix::TestMigration.extractor = :active_record
-      Migratrix::TestMigration.new.extractor.should == mock_extractor
     end
   end
 
   describe "with mock map transform" do
     let(:map) { { :id => :id, :name => :name }}
-    let(:mock_extractor) { mock("Migratrix::Extractors::ActiveRecord", :extract => [42,13,43,14], :valid_options => ["fetchall", "limit", "offset", "order", "where"])}
-    let(:transform1) { mock("Migratrix::Transforms::Map", :transform => [{:id => 42, :name => "Mister Bobo"}, {:id => 43, :name => "Mrs. Bobo"}], :valid_options => ["map"])}
-    let(:transform2) { mock("Migratrix::Transforms::Map", :transform => [{:id => 13, :name => "Sparky"}, {:id => 14, :name => "Fido"}], :valid_options => ["map"])}
+    let(:mock_extractor) {
+      mock("Migratrix::Extractors::ActiveRecord", {
+             :extract => {:animals => [42,13,43,14]},
+             :valid_options => ["fetchall", "limit", "offset", "order", "where"]
+           }
+      )
+    }
+    let(:transform1) {
+      mock("Migratrix::Transforms::Map", {
+             :name => :tame,
+             :transform => [{:id => 42, :name => "Mister Bobo"}, {:id => 43, :name => "Mrs. Bobo"}],
+             :valid_options => ["map"],
+             :extractor => :animals
+           })
+    }
+    let(:transform2) {
+      mock("Migratrix::Transforms::Map", {
+             :name => :animals,
+             :extractor => :animals,
+             :transform => [{:id => 13, :name => "Sparky"}, {:id => 14, :name => "Fido"}],
+             :valid_options => ["map"]
+           }
+      )
+    }
+
     before do
+      Migratrix::TestMigration.extractors.clear
       Migratrix::TestMigration.transforms.clear
-      Migratrix::Extractors::ActiveRecord.should_receive(:new).with({:source => Object }).and_return(mock_extractor)
-      Migratrix::Transforms::Map.should_receive(:new).with(:monkeys, :transform => map).and_return(transform1)
-      Migratrix::Transforms::Map.should_receive(:new).with(:puppies, :transform => map).and_return(transform2)
-      Migratrix::TestMigration.set_extractor :active_record, :source => Object
-      Migratrix::TestMigration.set_transform :monkeys, :map, :transform => map
-      Migratrix::TestMigration.set_transform :puppies, :map, :transform => map
+      Migratrix::Extractors::ActiveRecord.should_receive(:new).with(:animals, {:source => Object }).and_return(mock_extractor)
+      Migratrix::Transforms::Map.should_receive(:new).with(:monkeys, :transform => map, :extractor => :animals).and_return(transform1)
+      Migratrix::Transforms::Map.should_receive(:new).with(:puppies, :transform => map, :extractor => :animals).and_return(transform2)
+      Migratrix::TestMigration.set_extractor :animals, :active_record, :source => Object
+      Migratrix::TestMigration.set_transform :monkeys, :map, :transform => map, :extractor => :animals
+      Migratrix::TestMigration.set_transform :puppies, :map, :transform => map, :extractor => :animals
     end
 
     describe ".set_transform" do
       it "sets the class instance variable for transforms" do
-        Migratrix::TestMigration.transforms.should == [transform1, transform2]
+        Migratrix::TestMigration.transforms.should == { :monkeys => transform1, :puppies => transform2 }
       end
 
       it "also sets convenience instance method for extractor" do
-        Migratrix::TestMigration.new.transforms.should == [transform1, transform2]
+        Migratrix::TestMigration.new.transforms.should == { :monkeys => transform1, :puppies => transform2 }
       end
     end
 
+    describe "#transform" do
+      it "should pass named extracted_items to each transform" do
+        transform1.should_receive(:transform).with([42,13,43,14])
+        transform2.should_receive(:transform).with([42,13,43,14])
 
-#     describe "#transform" do
-#       it "delegates to each transforms" do
-#         migration.transforms.should == ...WRITE ME
-#       end
-#     end
-  end
-
-  describe "#valid_options" do
-    it "returns its valid options plus those of its extractor, transforms and loads" do
-      Migratrix::Extractors::ActiveRecord.should_receive(:new).with({:source => Object}).and_return(mock_extractor)
-      Migratrix::TestMigration.set_extractor :active_record, :source => Object
-      migration.valid_options.should == ["console", "fetchall", "limit", "offset", "order", "where"]
+        migration = Migratrix::TestMigration.new
+        migration.transform(mock_extractor.extract)
+      end
     end
   end
-
-  # TODO: it should lo
-
-#   describe "#valid_options" do
-#     it "returns the valid set of option keys" do
-#       migration.valid_options.should == ["limit", "offset", "order", "where"]
-#     end
-#   end
-
-#   describe "#filter_options" do
-#     it "filters out invalid options" do
-#       options = migration.filter_options({ "pants" => 42, "limit" => 3})
-#       options["limit"].should == 3
-#       options.should_not have_key("pants")
-#     end
-#   end
 end
-
 

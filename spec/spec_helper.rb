@@ -28,22 +28,7 @@ Dir[SPEC + "support/**/*.rb"].each {|f| require f}
 
 require LIB + 'migratrix'
 
-# Migatrix loads Migration classes into its namespace. In order to
-# test collision prevention, I needed to reach into Migratrix and
-# mindwipe it of any migrations. Here's the shiv to do that. I
-# originally put an API to do this on Migratrix but these specs are
-# the only clients of it so I removed it again. If you find a
-# legitimate use for it, feel free to re-add a remove_migration
-# method and send me a patch.
-def reset_migratrix!(migratrix)
-  Migratrix.constants.map(&:to_s).select {|m| m =~ /.+Migration$/}.each do |migration|
-    Migratrix.send(:remove_const, migration.to_sym)
-  end
-  migratrix.registered_migrations.clear
-
-  # Also clear any class vars on base classes
-  Migratrix::Migration.extractor = nil
-end
+require SPEC + "fixtures/migrations/marbles_migration"
 
 # Redirect singleton logger to logger of our choice, then release it
 # after the spec finishes or crashes.

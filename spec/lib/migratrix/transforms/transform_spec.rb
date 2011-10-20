@@ -14,7 +14,23 @@ describe Migratrix::Transforms::Transform do
   describe "#valid_options" do
     let(:base_transform) { Migratrix::Transforms::Transform.new(:base_transform) }
     it "returns the valid set of option keys" do
-      base_transform.valid_options.should == ["target", "transform"]
+      base_transform.valid_options.should == ["extractor", "target", "transform"]
+    end
+  end
+
+  describe "#extractor" do
+    context "with extractor name set" do
+      let(:transform) {  Migratrix::Transforms::Transform.new(:pants_transform, { :extractor => :pants_extractor })}
+      it "returns extractor name" do
+        transform.extractor.should == :pants_extractor
+      end
+    end
+
+    context "without extractor name set" do
+      let(:transform) {  Migratrix::Transforms::Transform.new(:pants_transform)}
+      it "returns transform name" do
+        transform.extractor.should == :pants_transform
+      end
     end
   end
 

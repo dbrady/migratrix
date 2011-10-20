@@ -12,14 +12,14 @@ describe Migratrix::Extractors::Extractor do
   end
 
   describe "#valid_options" do
-    let(:base_extractor) { Migratrix::Extractors::Extractor.new }
+    let(:base_extractor) { Migratrix::Extractors::Extractor.new :test }
     it "returns the valid set of option keys" do
       base_extractor.valid_options.should == ["limit", "offset", "order", "where"]
     end
   end
 
   describe "unimplemented methods:" do
-    let(:base_extractor) { Migratrix::Extractors::Extractor.new }
+    let(:base_extractor) { Migratrix::Extractors::Extractor.new :test }
     [:obtain_source, :handle_where, :handle_limit, :handle_offset, :handle_order, :to_query, :execute_extract].each do |method|
       describe "#{method}" do
         it "raises NotImplementedError" do
@@ -31,7 +31,7 @@ describe Migratrix::Extractors::Extractor do
 
   describe "#extract (default strategy)" do
     describe "with no options" do
-      let(:extractor) { TestExtractor.new }
+      let(:extractor) { TestExtractor.new :test }
       it "should call handle_source and execute_extract only" do
         extractor.should_receive(:obtain_source).with(nil, {}).and_return(13)
         extractor.should_receive(:execute_extract).with(13, {}).and_return(64)
@@ -41,7 +41,7 @@ describe Migratrix::Extractors::Extractor do
 
     describe "with all options" do
       let(:options) { { "where" => 1, "order" => 2, "limit" => 3, "offset" => 4 } }
-      let(:extractor) { TestExtractor.new options }
+      let(:extractor) { TestExtractor.new :test, options }
       it "should call entire handler chain" do
         extractor.should_receive(:obtain_source).with(nil, options).and_return("A")
         extractor.should_receive(:handle_where).with("A", 1).and_return("B")
@@ -55,7 +55,7 @@ describe Migratrix::Extractors::Extractor do
 
     describe "with overridden options" do
       let(:options) { { "where" => 1, "order" => 2, "limit" => 3, "offset" => 4 } }
-      let(:extractor) { TestExtractor.new options }
+      let(:extractor) { TestExtractor.new :test, options }
       let(:overrides) { {"where" => 5, "order" => 6, "limit" => 7, "offset" => 8 } }
       it "should call entire handler chain" do
         extractor.should_receive(:obtain_source).with(nil, overrides).and_return("A")

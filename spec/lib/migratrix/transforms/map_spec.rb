@@ -12,9 +12,11 @@ describe Migratrix::Transforms::Map do
   end
 
   describe "#valid_options" do
+    # TODO: Seriously, refactor me. This spec should say "I have no
+    # options of my own, but I should call super."
     let(:transform) { Migratrix::Transforms::Map.new(:map_transform) }
     it "returns the valid set of option keys" do
-      transform.valid_options.should == ["target", "transform"]
+      transform.valid_options.should == ["extractor", "target", "transform"]
     end
   end
 

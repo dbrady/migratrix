@@ -9,10 +9,6 @@ module Migratrix
       registry.fetch(name).first
     end
 
-    def options_for(name)
-      registry.fetch(name).second
-    end
-
     def registered?(name)
       registry.key?(name)
     end
