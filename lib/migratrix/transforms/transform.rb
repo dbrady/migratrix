@@ -208,26 +208,55 @@ module Migratrix
 
       def create_transformed_collection
         raise NotImplementedError unless options[:transform_collection]
-        raise TypeError unless options[:transform_collection].is_a? Proc
-        options[:transform_collection].call
+        option = options[:transform_collection]
+        case option
+        when Proc
+          option.call
+        when Class
+          option.new
+        else
+          raise TypeError
+        end
       end
 
       def create_new_object(extracted_row)
+        # TODO: this should work like finalize, taking a create and an init.
         raise NotImplementedError unless options[:transform_class]
-        raise TypeError unless options[:transform_class].is_a? Proc
-        options[:transform_class].call(extracted_row)
+        option = options[:transform_class]
+        case option
+        when Proc
+          option.call(extracted_row)
+        when Class
+          option.new # laaame--should receive extracted_row, see todo above
+        else
+          raise TypeError
+        end
       end
 
       def apply_attribute(object, attribute_or_apply, value)
         raise NotImplementedError unless options[:apply_attribute]
-        raise TypeError unless options[:apply_attribute].is_a? Proc
-        options[:apply_attribute].call(object, attribute_or_apply, value)
+        option = options[:apply_attribute]
+        case option
+        when Proc
+          option.call(object, attribute_or_apply, value)
+        when Symbol
+          object.send(option, attribute_or_apply, value)
+        else
+          raise TypeError
+        end
       end
 
       def extract_attribute(object, attribute_or_extract)
         raise NotImplementedError unless options[:extract_attribute]
-        raise TypeError unless options[:extract_attribute].is_a? Proc
-        options[:extract_attribute].call(object, attribute_or_extract)
+        option = options[:extract_attribute]
+        case option
+        when Proc
+          option.call(object, attribute_or_extract)
+        when Symbol
+          object.send(option, attribute_or_extract)
+        else
+          raise TypeError
+        end
       end
 
       # finalize_object is optional; if you are using the "start with
@@ -235,20 +264,28 @@ module Migratrix
       def finalize_object(new_object)
         return new_object unless options[:final_class] || options[:finalize_object]
         raise TypeError if options[:finalize_object] && !options[:finalize_object].is_a?(Proc)
+        raise TypeError if options[:final_class] && !options[:final_class].is_a?(Class)
 
       #   Both Missing: final_object = new_object
       #   :final_class only: final_obj = FinalClass.new(new_obj)
       #   :finalize only: final_obj = finalize(new_obj)
       #   Both Present: final_obj = FinalClass.new(finalize(obj))
-        new_obj = options[:finalize_object].call(new_object) if options[:finalize_object]
-        new_obj = options[:final_class].new(new_object) if options[:final_class]
-        new_obj
+        new_object = options[:finalize_object].call(new_object) if options[:finalize_object]
+        new_object = options[:final_class].new(new_object) if options[:final_class]
+        new_object
       end
 
       def store_transformed_object(object, collection)
         raise NotImplementedError unless options[:store_transformed_object]
-        raise TypeError unless options[:store_transformed_object].is_a? Proc
-        options[:store_transformed_object].call(object, collection)
+        option = options[:store_transformed_object]
+        case option
+        when Proc
+          option.call(object, collection)
+        when Symbol
+          collection.send(option, object)
+        else
+          raise TypeError
+        end
       end
     end
   end

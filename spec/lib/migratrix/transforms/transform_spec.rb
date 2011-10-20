@@ -49,6 +49,32 @@ describe Migratrix::Transforms::Transform do
     end
   end
 
+  describe "TypeError methods" do
+    [:transform_collection, :transform_class, :extract_attribute, :apply_attribute, :final_class, :finalize_object, :store_transformed_object].each do |method|
+      describe "With #{method} set to a string" do
+        let(:transform_options) { {
+            extractor: :test_stream,
+            transform: { id: :src_id, name: :src_name },
+            transform_collection: Array,
+            transform_class:  Hash,
+            extract_attribute:  ->(object, attribute) { object[attribute] },
+            apply_attribute: ->(object, attribute, value) { object[attribute] = value },
+            final_class: Set,
+            finalize_object: ->(object) { object.to_a },
+            store_transformed_object: :<<
+          }.merge( method => "cheese")
+        }
+        let(:transform) { TestTransform.new :test, transform_options }
+        let(:test_stream) { [{src_id: 42, src_name: "Alice"}, {src_id: 43, src_name: "Bob"} ] }
+        let(:extractors) { { test_stream: mock("extractor", name: "test_stream", extract: test_stream )}}
+
+        it "should raise TypeError" do
+          lambda { transform.transform(test_stream) }.should raise_error(TypeError)
+        end
+      end
+    end
+  end
+
   describe "with Proc options" do
     let(:transform) { TestTransform.new :test, {
         extractor: :test_stream,
@@ -74,6 +100,33 @@ describe Migratrix::Transforms::Transform do
       transform.transform(test_stream).should == [
         Set.new([[:id, 42], [:name, "Alice"]]),
         Set.new([[:id, 43], [:name, "Bob"]])
+      ]
+    end
+  end
+
+  describe "with symbol and class options" do
+    let(:transform) { TestTransform.new :test, {
+        extractor: :test_stream,
+        transform: { id: :src_id, name: :src_name },
+        transform_collection: Array,
+        transform_class:  Hash,
+        extract_attribute:  :[],
+        apply_attribute: :[]=,
+        store_transformed_object: :<<
+      }
+    }
+
+    let(:test_stream) { [{src_id: 42, src_name: "Alice"}, {src_id: 43, src_name: "Bob"} ] }
+    let(:extractors) { { test_stream: mock("extractor", name: "test_stream", extract: test_stream )}}
+
+    before do
+      TestTransform.stub!(:extractors).and_return(extractors)
+    end
+
+    it "should delegate to procs" do
+      transform.transform(test_stream).should == [
+        {id: 42, name: "Alice"},
+        {id: 43, name: "Bob"}
       ]
     end
   end
