@@ -44,12 +44,12 @@ describe Migratrix::Migration do
     end
   end
 
-  describe "with mock map transform" do
+  describe "with mocked components" do
     let(:map) { { :id => :id, :name => :name }}
     let(:mock_extractor) {
       mock("Migratrix::Extractors::ActiveRecord", {
              :extract => {:animals => [42,13,43,14]},
-             :valid_options => ["fetchall", "limit", "offset", "order", "where"]
+             :valid_options => [:fetchall, :limit, :offset, :order, :where]
            }
       )
     }
@@ -57,7 +57,7 @@ describe Migratrix::Migration do
       mock("Migratrix::Transforms::Map", {
              :name => :tame,
              :transform => [{:id => 42, :name => "Mister Bobo"}, {:id => 43, :name => "Mrs. Bobo"}],
-             :valid_options => ["map"],
+             :valid_options => [:map],
              :extractor => :animals
            })
     }
@@ -66,7 +66,7 @@ describe Migratrix::Migration do
              :name => :animals,
              :extractor => :animals,
              :transform => [{:id => 13, :name => "Sparky"}, {:id => 14, :name => "Fido"}],
-             :valid_options => ["map"]
+             :valid_options => [:map]
            }
       )
     }
@@ -101,6 +101,13 @@ describe Migratrix::Migration do
         migration.transform(mock_extractor.extract)
       end
     end
+
+    describe ".valid_options" do
+      it "returns valid options from itself and components" do
+        Migratrix::TestMigration.valid_options.should == [:console, :fetchall, :limit, :map, :offset, :order, :where]
+      end
+    end
   end
+
 end
 

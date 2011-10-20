@@ -1,22 +1,14 @@
 # TODO #
 
-* [ ] Put dials and knobs (options) on Transform
+* [ ] Add nicer (Phase 3) syntax to Transform options. E.g.
+  `transform_class` doesn't have to be a lambdba, it could actually BE
+  a class....
 
 * [ ] Basically rip out the Migratrix class as much as possible. It's
   making more and more sense to just have people say
   MyMigration.migrate(options). It's a LOT more testable, too, than
   having global magic load paths.
 
-* [x] Renege on the only-one-extractor idea. If you have data in two
-  sources--like a YAML file and a MongoDB, you really have to have 2
-  extractors. (Well, okay, you could write an Extractor that grabs
-  stuff from both sources but we already have this notion of named
-  transform and load streams, might as well have named extraction
-  streams.)
-
-* [ ] Symbolize all the options keys and valid_options, or use
-  HashWithIndifferentAccess.
-  
 * [ ] Decide on default migratrix n-transform strategy: Do we have
   the transforms run sequentially, or do we attempt to have them
   process records in parallel?
@@ -45,12 +37,6 @@
     end
     
   ...and build up their legacy models from there.
-
-* [ ] Move `Migratrix.valid_options` into migration, provide
-  `valid_options` class method / DSL to allow subclasses to
-  overwrite/extend the migratrix options. Then the migration class can
-  handle its options its own way (for example a csv-based migration
-  might permit a "headers" option)
 
 * [ ] Tease apart `Migration.execute` so that the log can be easily
   redirected at the Migratrix level but `execute` is either handled by
@@ -169,6 +155,25 @@ them all to get to the tasks that need doing.
   Loads, etc.
 
 * [%] Refactor NotImplementedMethod specs to shared behavior
+
+* [*] Move `Migratrix.valid_options` into migration, provide
+  `valid_options` class method / DSL to allow subclasses to
+  overwrite/extend the migratrix options. Then the migration class can
+  handle its options its own way (for example a csv-based migration
+  might permit a "headers" option)
+
+* [x] Renege on the only-one-extractor idea. If you have data in two
+  sources--like a YAML file and a MongoDB, you really have to have 2
+  extractors. (Well, okay, you could write an Extractor that grabs
+  stuff from both sources but we already have this notion of named
+  transform and load streams, might as well have named extraction
+  streams.)
+
+* [*] Symbolize all the options keys and valid_options, or use
+  HashWithIndifferentAccess.
+  
+* [*] Put dials and knobs (options) on Transform
+
 
 ^^^ New Done Stuff Goes here  
 

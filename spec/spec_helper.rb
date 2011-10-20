@@ -53,6 +53,13 @@ def with_logging_to(stream, &block)
 end
 
 RSpec.configure do |config|
+  config.before(:each) do
+    @test_logger_buffer = StringIO.new
+    @test_logger = Migratrix::Migratrix.create_logger(@test_logger_buffer)
+    Migratrix::Migratrix.init_logger
+    Migratrix::Migratrix.logger = @test_logger
+
+  end
   # == Mock Framework
   #
   # If you prefer to use mocha, flexmock or RR, uncomment the appropriate line:

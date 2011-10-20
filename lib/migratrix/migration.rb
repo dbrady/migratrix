@@ -6,19 +6,22 @@ module Migratrix
   class Migration
     include ::Migratrix::Loggable
     include ActiveModel::AttributeMethods
+    include Migratrix::ValidOptions
 
     attr_accessor :options
+    set_valid_options :console
 
     def initialize(options={})
       @options = options.deep_copy.symbolize_keys
+      Migratrix.log_to($stdout) if @options[:console]
     end
 
     # TODO: Technically, we need to ask our extractor, transformers
     # and loaders for THEIR valid options as well. limit, offset,
     # order and where are all extractor-only options, and fetchall is
     # an ActiveRecord-specific option
-    def valid_options
-      opts = %w(console)
+    def self.valid_options
+      opts = super # wacky, I know, but the extended ValidOptions module is in the super chain. (I <3 Ruby)
       if extractors
         extractors.each do |name, extractor|
           opts += extractor.valid_options

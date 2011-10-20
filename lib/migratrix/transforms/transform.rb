@@ -48,23 +48,24 @@ module Migratrix
       include ::Migratrix::ValidOptions
       attr_accessor :name, :options, :extractor, :transformations
 
-      set_valid_options *(%w(apply_attribute extract_attribute extractor final_class finalize_object store_transform target transform transform_class transform_collection))
+      set_valid_options(
+                :apply_attribute,
+                :extract_attribute,
+                :extractor,
+                :final_class,
+                :finalize_object,
+                :store_transform,
+                :target,
+                :transform,
+                :transform_class,
+                :transform_collection
+                )
 
       def initialize(name, options={})
         @name = name
-        @options = options.deep_copy
+        @options = options.symbolize_keys
+        @transformations = options[:transform]
       end
-
-#     set_transform :repetition_types, :transform, {
-#       extractor: :repetition_types,
-#       transform: { :id => :id, :name => :name },
-#       transform_collection: -> { Hash.new },
-#       transform_class:  -> { Hash.new },
-#       extract_attribute:  ->(object, attribute) { object[attribute] }
-#       apply_attribute: ->(object, attribute, value) { object[attribute] = value }
-#       final_class: nil,
-#       finalize_object: nil,
-#       store_transformed_object: -> (object, collection) { collection[object[:id]] = object }
 
       def extractor
         # TODO: This is still a 1-extractor-per-transform model, but
@@ -87,7 +88,7 @@ module Migratrix
         extracted_objects.each do |extracted_object|
           new_object = create_new_object(extracted_object)
           transformations.each do |attribute_or_apply, attribute_or_extract|
-            apply_attribute(new_object, extract_attribute(extracted_object, attribute_or_extract), attribute_or_apply)
+            apply_attribute(new_object, attribute_or_apply, extract_attribute(extracted_object, attribute_or_extract))
           end
           transformed_object = finalize_object(new_object)
           store_transformed_object(transformed_object, transformed_collection)
@@ -107,17 +108,6 @@ module Migratrix
       # finalize_object -> no-op
       # store_transformed_object -> collection[object[:id]] = object
       # ----------------------------------------------------------------------
-
-#     set_transform :repetition_types, :transform, {
-#       extractor: :repetition_types,
-#       transform: { :id => :id, :name => :name },
-#       transform_collection: -> { Hash.new },
-#       transform_class:  -> { Hash.new },
-#       extract_attribute:  ->(object, attribute) { object[attribute] }
-#       apply_attribute: ->(object, attribute, value) { object[attribute] = value }
-#       final_class: nil,
-#       finalize_object: nil,
-#       store_transformed_object: -> (object, collection) { collection[object[:id]] = object }
 
       # ----------------------------------------------------------------------
       # Default strategy:
@@ -203,30 +193,62 @@ module Migratrix
       #   so they're faster.
 
 
+
+
+#     set_transform :repetition_types, :transform, {
+#       extractor: :repetition_types,
+#       transform: { :id => :id, :name => :name },
+#       transform_collection: -> { Hash.new },
+#       transform_class:  -> { Hash.new },
+#       extract_attribute:  ->(object, attribute) { object[attribute] }
+#       apply_attribute: ->(object, attribute, value) { object[attribute] = value }
+#       final_class: nil,
+#       finalize_object: nil,
+#       store_transformed_object: -> (object, collection) { collection[object[:id]] = object }
+
       def create_transformed_collection
-        raise NotImplementedError
+        raise NotImplementedError unless options[:transform_collection]
+        raise TypeError unless options[:transform_collection].is_a? Proc
+        options[:transform_collection].call
       end
 
       def create_new_object(extracted_row)
-        raise NotImplementedError
+        raise NotImplementedError unless options[:transform_class]
+        raise TypeError unless options[:transform_class].is_a? Proc
+        options[:transform_class].call(extracted_row)
       end
 
-      def apply_attribute(object, value, attribute_or_apply)
-        raise NotImplementedError
+      def apply_attribute(object, attribute_or_apply, value)
+        raise NotImplementedError unless options[:apply_attribute]
+        raise TypeError unless options[:apply_attribute].is_a? Proc
+        options[:apply_attribute].call(object, attribute_or_apply, value)
       end
 
       def extract_attribute(object, attribute_or_extract)
-        raise NotImplementedError
+        raise NotImplementedError unless options[:extract_attribute]
+        raise TypeError unless options[:extract_attribute].is_a? Proc
+        options[:extract_attribute].call(object, attribute_or_extract)
       end
 
       # finalize_object is optional; if you are using the "start with
       # a blank object and build it up" strategy, it's a no-op.
       def finalize_object(new_object)
-        new_object
+        return new_object unless options[:final_class] || options[:finalize_object]
+        raise TypeError if options[:finalize_object] && !options[:finalize_object].is_a?(Proc)
+
+      #   Both Missing: final_object = new_object
+      #   :final_class only: final_obj = FinalClass.new(new_obj)
+      #   :finalize only: final_obj = finalize(new_obj)
+      #   Both Present: final_obj = FinalClass.new(finalize(obj))
+        new_obj = options[:finalize_object].call(new_object) if options[:finalize_object]
+        new_obj = options[:final_class].new(new_object) if options[:final_class]
+        new_obj
       end
 
       def store_transformed_object(object, collection)
-        raise NotImplementedError
+        raise NotImplementedError unless options[:store_transformed_object]
+        raise TypeError unless options[:store_transformed_object].is_a? Proc
+        options[:store_transformed_object].call(object, collection)
       end
     end
   end

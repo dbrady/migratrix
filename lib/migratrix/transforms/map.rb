@@ -31,7 +31,6 @@ module Migratrix
 
       def initialize(name, options={})
         super
-        @transformations = options[:transform]
       end
 
       def create_transformed_collection
@@ -42,7 +41,7 @@ module Migratrix
         Hash.new
       end
 
-      def apply_attribute(object, value, attribute_or_apply)
+      def apply_attribute(object, attribute_or_apply, value)
         object[attribute_or_apply] = value
       end
 
