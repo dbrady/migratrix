@@ -162,55 +162,60 @@ describe Migratrix::Migration do
     end
   end
 
-  describe "extend components" do
+  describe "extending" do
     before do
       [TestMigration, ChildMigration1, ChildMigration2, GrandchildMigration1].each do |klass|
         [:extractors, :transforms, :loads].each do |kollection|
           klass.send(kollection).send(:clear)
         end
       end
-      TestMigration.set_extractor :cheese, :extractor, { where: 'id>100' }
-      TestMigration.set_transform :cheese, :transform, { transform_collection: Array }
-      TestMigration.set_load :cheese, :yaml, { transform: :cheese }
+      TestMigration.set_extractor :cheese, :extractor, { first_option: 'id>100' }
+      TestMigration.set_transform :cheese, :transform, { first_option: 'id>100' }
+      TestMigration.set_load :cheese, :load, { first_option: 'id>100' }
 
     end
 
-    it "extends the component to child class" do
-      ChildMigration1.extend_extractor :cheese, { source: Array }
-      ChildMigration1.new.extractors[:cheese].options.should == { source: Array, where: 'id>100'}
-    end
+    [:extractor, :transform, :load ].each do |component|
+      describe "#{component}" do
+        it "extends the #{component} to child class" do
+          ChildMigration1.send("extend_#{component}", :cheese, { second_option: 2 })
+          ChildMigration1.new.send("#{component}s")[:cheese].options.should == { second_option: 2, first_option: 'id>100'}
+        end
 
-    it "extends the component to the grandchild class" do
-      ChildMigration1.extend_extractor :cheese, { source: Array }
-      GrandchildMigration1.extend_extractor :cheese, { limit: 50 }
-      GrandchildMigration1.new.extractors[:cheese].options.should == { source: Array, where: 'id>100', limit: 50 }
-    end
+        it "extends the #{component} to the grandchild class" do
+          ChildMigration1.send("extend_#{component}", :cheese, { second_option: 2 })
+          GrandchildMigration1.send("extend_#{component}", :cheese, { surprise_option: 50 })
+          GrandchildMigration1.new.send("#{component}s")[:cheese].options.should == { second_option: 2, first_option: 'id>100', surprise_option: 50 }
+        end
 
-    it "extends the component to the grandchild class even if the child class does not extend" do
-      GrandchildMigration1.extend_extractor :cheese, { limit: 50 }
-      GrandchildMigration1.new.extractors[:cheese].options.should == { where: 'id>100', limit: 50 }
-    end
+        it "extends the #{component} to the grandchild class even if the child class does not extend" do
+          GrandchildMigration1.send("extend_#{component}", :cheese, { surprise_option: 50 })
+          GrandchildMigration1.new.send("#{component}s")[:cheese].options.should == { first_option: 'id>100', surprise_option: 50 }
+        end
 
-    it "overrides parent options" do
-      ChildMigration1.extend_extractor :cheese, { source: Array, where: 'id>50' }
-      ChildMigration1.new.extractors[:cheese].options.should == { source: Array, where: 'id>50'}
-    end
+        it "overrides parent options" do
+          ChildMigration1.send("extend_#{component}", :cheese, { second_option: 2, first_option: 'id>50' })
+          ChildMigration1.new.send("#{component}s")[:cheese].options.should == { second_option: 2, first_option: 'id>50'}
+        end
 
-    it "does not affect sibling class options" do
-      ChildMigration1.extend_extractor :cheese, { source: Array, where: 'id>50' }
-      ChildMigration2.extend_extractor :cheese, { source: Hash, where: 'id>75' }
-      ChildMigration1.new.extractors[:cheese].options.should == { source: Array, where: 'id>50'}
-      ChildMigration2.new.extractors[:cheese].options.should == { source: Hash, where: 'id>75'}
-    end
+        it "does not affect sibling class options" do
+          ChildMigration1.send("extend_#{component}", :cheese, { second_option: 2, first_option: 'id>50' })
+          ChildMigration2.send("extend_#{component}", :cheese, { zany_option: Hash, first_option: 'id>75' })
+          ChildMigration1.new.send("#{component}s")[:cheese].options.should == { second_option: 2, first_option: 'id>50'}
+          ChildMigration2.new.send("#{component}s")[:cheese].options.should == { zany_option: Hash, first_option: 'id>75'}
+        end
 
-    it "does not affect parent class options" do
-      ChildMigration1.extend_extractor :cheese, { source: Array, where: 'id>50' }
-      ChildMigration1.new.extractors[:cheese].options.should == { source: Array, where: 'id>50'}
-      TestMigration.new.extractors[:cheese].options.should == { where: 'id>100'}
-    end
+        it "does not affect parent class options" do
+          ChildMigration1.send("extend_#{component}", :cheese, { second_option: 2, first_option: 'id>50' })
+          ChildMigration1.new.send("#{component}s")[:cheese].options.should == { second_option: 2, first_option: 'id>50'}
+          TestMigration.new.send("#{component}s")[:cheese].options.should == { first_option: 'id>100'}
+        end
 
-    it "raises MigrationNotFoundError if no parent has that component" do
-      lambda { ChildMigration1.extend_extractor :blargle, { source: Array, where: 'id>50' } }.should raise_error(Migratrix::ExtractorNotDefined)
+        it "raises #{component.capitalize}NotDefined if no parent has that #{component}" do
+          exception = "Migratrix::#{component.capitalize}NotDefined".constantize
+          lambda { ChildMigration1.send("extend_#{component}", :blargle, { second_option: 2, first_option: 'id>50' }) }.should raise_error(exception)
+        end
+      end
     end
 
 

@@ -42,6 +42,9 @@ module Migratrix
 
     # Sets the extractor (unlike transform and load, which have
     # chains, there is only one Extractor per Migration)
+    # TODO: THIS IS HUGE DUPLICATION, REFACTOR REFACTOR REFACTOR
+
+    # extractor crap
     def self.set_extractor(extractor_name, class_name, options={})
       extractors[extractor_name] = Migratrix.extractor(class_name, extractor_name, options)
     end
@@ -61,8 +64,16 @@ module Migratrix
       self.class.extractors
     end
 
+    # transform crap
     def self.set_transform(name, type, options={})
       transforms[name] = Migratrix.transform(name, type, options)
+    end
+
+    def self.extend_transform(transform_name, options={})
+      migration = ancestors.detect {|k| k.respond_to?(:transforms) && k.transforms[transform_name]}
+      raise TransformNotDefined.new("Could not extend extractar '%s'; no parent Migration defines it" % transform_name) unless migration
+      transform = migration.transforms[transform_name]
+      transforms[transform_name] = transform.class.new(transform_name, transform.options.merge(options))
     end
 
     def self.transforms
@@ -73,8 +84,16 @@ module Migratrix
       self.class.transforms
     end
 
+    # load crap
     def self.set_load(name, type, options={})
       loads[name] = Migratrix.load(name, type, options)
+    end
+
+    def self.extend_load(load_name, options={})
+      migration = ancestors.detect {|k| k.respond_to?(:loads) && k.loads[load_name]}
+      raise LoadNotDefined.new("Could not extend extractar '%s'; no parent Migration defines it" % load_name) unless migration
+      load = migration.loads[load_name]
+      loads[load_name] = load.class.new(load_name, load.options.merge(options))
     end
 
     def self.loads

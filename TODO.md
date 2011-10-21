@@ -1,28 +1,5 @@
 # TODO #
 
-* [ ] Option inheritance--in migrations.
-
-    class SomeMigration < Migration
-      set_extractor :evens, :active_record, { where: 'id % 2 = 0'}
-    end
-    
-    class ChildMigration < SomeMigration
-      extend_extractor :evens, { source: Legacy::Children }
-    end
-    
-    ChildMigration.new.extractor(:evens).options
-    # => { where: 'id % 2 = 0', source: Legacy::Children }
-  
-
-* [ ] Change over all Client constant migrations
-  * [ ] Refactor/extend Migratrix: A constants migration should only
-    need to know the ActiveRecord source, the column mapping, and the
-    YAML filename. Can we inherit everything but those three elements?
-  * [ ] Delete config/constants/*.yml
-  * [ ] Change Client constants initted to load hash, not array
-  * [ ] Create migrators for the others
-  * [ ] Regenerate new ymls
-
 * [ ] Load::ActiveRecord
 
 * [ ] Basically rip out the Migratrix class as much as possible. It's
@@ -180,6 +157,19 @@ them all to get to the tasks that need doing.
 
 * [*] Load::YAML
 
+* [*] Option inheritance--in migrations.
+
+    class SomeMigration < Migration
+      set_extractor :evens, :active_record, { where: 'id % 2 = 0'}
+    end
+    
+    class ChildMigration < SomeMigration
+      extend_extractor :evens, { source: Legacy::Children }
+    end
+    
+    ChildMigration.new.extractor(:evens).options
+    # => { where: 'id % 2 = 0', source: Legacy::Children }
+  
 
 ^^^ New Done Stuff Goes here  
 
