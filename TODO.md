@@ -4,10 +4,6 @@
 
 * [ ] Migration Log
 
-* [ ] Rename Extractor -> Extract. I've managed to keep Transform and
-  Load from becoming Transformer and Loader; there's no reason to let
-  extractor be different.
-
 * [ ] Load::ActiveRecord. Do we really need this? Do we need anything
   besides the default Load strategy? (Remember, the AR class is set in
   Transform, so save should just work...)
@@ -198,6 +194,14 @@ them all to get to the tasks that need doing.
     ChildMigration.new.extractor(:evens).options
     # => { where: 'id % 2 = 0', source: Legacy::Children }
   
+## TODONE 0.8.0 ##
+
+* [*] Rename Extractor -> Extraction. I've managed to keep Transform
+  and Load from becoming Transformer and Loader; there's no reason to
+  let extractor be different. (Note: was going to call this "Extract"
+  but halfway through the rename I realized that "extract" as a noun
+  has an existing, intuitive (and thus misleading) meaning. (E.g.
+  "vanilla extract", "floral extract", "fruit extract", etc.)
 
 ^^^ New Done Stuff Goes here  
 

@@ -43,21 +43,21 @@ module Migratrix
     # ----------------------------------------------------------------------
     # Candidate for exract class? MigrationRegistry?
     def self.registry
-      @registry ||= Hash[[:extractors,:loads,:migrations,:transforms].map {|key| [key, Registry.new]}]
+      @registry ||= Hash[[:extractions,:loads,:migrations,:transforms].map {|key| [key, Registry.new]}]
     end
 
     # --------------------
-    # extractors
-    def self.extractors
-      registry[:extractors]
+    # extractions
+    def self.extractions
+      registry[:extractions]
     end
 
-    def self.register_extractor(class_name, klass, options={})
-      self.extractors.register(class_name, klass, options)
+    def self.register_extraction(class_name, klass, options={})
+      self.extractions.register(class_name, klass, options)
     end
 
-    def self.extractor(class_name, extractor_name, options={})
-      self.extractors.class_for(class_name).new(extractor_name, options)
+    def self.extraction(class_name, extraction_name, options={})
+      self.extractions.class_for(class_name).new(extraction_name, options)
     end
     # --------------------
 

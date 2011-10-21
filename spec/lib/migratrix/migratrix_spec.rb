@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-class TestExtractor < Migratrix::Extractors::Extractor
+class TestExtraction < Migratrix::Extractions::Extraction
 end
 
 class TestTransform < Migratrix::Transforms::Transform
@@ -24,20 +24,20 @@ describe Migratrix::Migratrix do
   end
 
   describe "Migration Component Registry" do
-    describe ".register_extractor" do
+    describe ".register_extraction" do
       before do
-        Migratrix::Migratrix.register_extractor :test_extractor, TestExtractor, { :source => Object }
+        Migratrix::Migratrix.register_extraction :test_extraction, TestExtraction, { :source => Object }
       end
 
-      it "registers the extractor" do
-        Migratrix::Migratrix.extractors.registered?(:test_extractor).should be_true
-        Migratrix::Migratrix.extractors.class_for(:test_extractor).should == TestExtractor
+      it "registers the extraction" do
+        Migratrix::Migratrix.extractions.registered?(:test_extraction).should be_true
+        Migratrix::Migratrix.extractions.class_for(:test_extraction).should == TestExtraction
       end
 
-      it "creates the extractor with given options" do
-        extractor = TestExtractor.new :test
-        Migratrix::Migratrix.extractors.registered?(:test_extractor).should be_true
-        Migratrix::Migratrix.extractors.class_for(:test_extractor).should == TestExtractor
+      it "creates the extraction with given options" do
+        extraction = TestExtraction.new :test
+        Migratrix::Migratrix.extractions.registered?(:test_extraction).should be_true
+        Migratrix::Migratrix.extractions.class_for(:test_extraction).should == TestExtraction
       end
     end
 

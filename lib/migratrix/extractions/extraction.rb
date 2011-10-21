@@ -1,7 +1,7 @@
 module Migratrix
-  module Extractors
+  module Extractions
     # base class for extraction
-    class Extractor
+    class Extraction
       include ::Migratrix::Loggable
       include ::Migratrix::ValidOptions
 
@@ -46,8 +46,8 @@ module Migratrix
 
       # First step in extraction is to take the given source and turn
       # it into something that the filter chain can used. The
-      # ActiveRecord extractor uses a legacy model class as its source
-      # so it can simply return its source. A CSV or Yaml extractor
+      # ActiveRecord extraction uses a legacy model class as its source
+      # so it can simply return its source. A CSV or Yaml extraction
       # here might need to read the entire file contents and returns
       # the full, unfiltered data source.
       def obtain_source(source, options={})
@@ -75,7 +75,7 @@ module Migratrix
       end
 
       # Constructs the query, if applicable. May not exist or make
-      # sense for non-SQL and/or non-ActiveRecord extractors.
+      # sense for non-SQL and/or non-ActiveRecord extractions.
       def to_query(source)
         raise NotImplementedError
       end

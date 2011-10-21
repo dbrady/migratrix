@@ -46,12 +46,12 @@ module Migratrix
     class Transform
       include ::Migratrix::Loggable
       include ::Migratrix::ValidOptions
-      attr_accessor :name, :options, :extractor, :transformations
+      attr_accessor :name, :options, :extraction, :transformations
 
       set_valid_options(
                 :apply_attribute,
                 :extract_attribute,
-                :extractor,
+                :extraction,
                 :final_class,
                 :finalize_object,
                 :store_transform,
@@ -67,9 +67,9 @@ module Migratrix
         @transformations = options[:transform]
       end
 
-      # Name of the extractor to use. If omitted, returns our name.
-      def extractor
-        options[:extractor] || name
+      # Name of the extraction to use. If omitted, returns our name.
+      def extraction
+        options[:extraction] || name
       end
 
       # This transform method has strategy magic at every turn. I

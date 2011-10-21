@@ -16,15 +16,15 @@ module Migratrix
       Migratrix.log_to($stdout) if @options[:console]
     end
 
-    # TODO: Technically, we need to ask our extractor, transformers
+    # TODO: Technically, we need to ask our extractions, transformers
     # and loaders for THEIR valid options as well. limit, offset,
-    # order and where are all extractor-only options, and fetchall is
+    # order and where are all extraction-only options, and fetchall is
     # an ActiveRecord-specific option
     def self.valid_options
       opts = super # wacky, I know, but the extended ValidOptions module is in the super chain. (I <3 Ruby)
-      if extractors
-        extractors.each do |name, extractor|
-          opts += extractor.valid_options
+      if extractions
+        extractions.each do |name, extraction|
+          opts += extraction.valid_options
         end
       end
       if transforms
@@ -40,28 +40,26 @@ module Migratrix
       opts.uniq.sort
     end
 
-    # Sets the extractor (unlike transform and load, which have
-    # chains, there is only one Extractor per Migration)
     # TODO: THIS IS HUGE DUPLICATION, REFACTOR REFACTOR REFACTOR
 
-    # extractor crap
-    def self.set_extractor(extractor_name, class_name, options={})
-      extractors[extractor_name] = Migratrix.extractor(class_name, extractor_name, options)
+    # extraction crap
+    def self.set_extraction(extraction_name, class_name, options={})
+      extractions[extraction_name] = Migratrix.extraction(class_name, extraction_name, options)
     end
 
-    def self.extend_extractor(extractor_name, options={})
-      migration = ancestors.detect {|k| k.respond_to?(:extractors) && k.extractors[extractor_name]}
-      raise ExtractorNotDefined.new("Could not extend extractar '%s'; no parent Migration defines it" % extractor_name) unless migration
-      extractor = migration.extractors[extractor_name]
-      extractors[extractor_name] = extractor.class.new(extractor_name, extractor.options.merge(options))
+    def self.extend_extraction(extraction_name, options={})
+      migration = ancestors.detect {|k| k.respond_to?(:extractions) && k.extractions[extraction_name]}
+      raise ExtractionNotDefined.new("Could not extend extractar '%s'; no parent Migration defines it" % extraction_name) unless migration
+      extraction = migration.extractions[extraction_name]
+      extractions[extraction_name] = extraction.class.new(extraction_name, extraction.options.merge(options))
     end
 
-    def self.extractors
-      @extractors ||= {}
+    def self.extractions
+      @extractions ||= {}
     end
 
-    def extractors
-      self.class.extractors
+    def extractions
+      self.class.extractions
     end
 
     # transform crap
@@ -106,8 +104,8 @@ module Migratrix
 
     def extract
       extracted_items = {}
-      extractors.each do |name, extractor|
-        extracted_items[name] = extractor.extract(options)
+      extractions.each do |name, extraction|
+        extracted_items[name] = extraction.extract(options)
       end
       extracted_items
     end
@@ -118,7 +116,7 @@ module Migratrix
     def transform(extracted_items)
       transformed_items = { }
       transforms.each do |name, transform|
-        transformed_items[transform.name] = transform.transform extracted_items[transform.extractor]
+        transformed_items[transform.name] = transform.transform extracted_items[transform.extraction]
       end
       transformed_items
     end
@@ -142,7 +140,7 @@ module Migratrix
     # strategy. YAGNI: Rails 3 lets us defer the querying until we get
     # to the transform step, and then it's batched for us under the
     # hood. ...assuming, of course, we change the ActiveRecord
-    # extractor's execute_extract method to return source instead of
+    # extraction's execute_extract method to return source instead of
     # all, but now the
     def migrate
       # This fn || @var API lets you write a method and either set the

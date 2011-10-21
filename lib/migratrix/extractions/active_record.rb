@@ -1,7 +1,7 @@
 module Migratrix
-  module Extractors
-    # Extractor that expects to be pointed at an ActiveRecord class.
-    class ActiveRecord < Extractor
+  module Extractions
+    # Extraction that expects to be pointed at an ActiveRecord class.
+    class ActiveRecord < Extraction
       set_valid_options :fetchall
 
       def source=(new_source)
@@ -14,7 +14,7 @@ module Migratrix
       end
 
       def obtain_source(source, options={})
-        raise ExtractorSourceUndefined unless source
+        raise ExtractionSourceUndefined unless source
         raise TypeError.new(":source is of type must be an ActiveRecord model class (must inherit from ActiveRecord::Base)") unless is_ar?(source)
         source
       end

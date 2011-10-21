@@ -17,20 +17,20 @@ describe Migratrix::Transforms::Transform do
 
   describe ".local_valid_options" do
     it "returns the valid set of option keys" do
-      Migratrix::Transforms::Transform.local_valid_options.should == [:apply_attribute, :extract_attribute, :extractor, :final_class, :finalize_object, :store_transform, :target, :transform, :transform_class, :transform_collection]
+      Migratrix::Transforms::Transform.local_valid_options.should == [:apply_attribute, :extract_attribute, :extraction, :final_class, :finalize_object, :store_transform, :target, :transform, :transform_class, :transform_collection]
     end
   end
 
 
-  describe "#extractor" do
-    it "returns extractor name when set" do
-      transform = Migratrix::Transforms::Transform.new(:pants_transform, { extractor: :pants_extractor })
-      transform.extractor.should == :pants_extractor
+  describe "#extraction" do
+    it "returns extraction name when set" do
+      transform = Migratrix::Transforms::Transform.new(:pants_transform, { extraction: :pants_extraction })
+      transform.extraction.should == :pants_extraction
     end
 
-    it "#returns transform name when no extractor name is set" do
+    it "#returns transform name when no extraction name is set" do
       transform = Migratrix::Transforms::Transform.new(:pants_transform)
-      transform.extractor.should == :pants_transform
+      transform.extraction.should == :pants_transform
     end
   end
 
@@ -53,7 +53,7 @@ describe Migratrix::Transforms::Transform do
     [:transform_collection, :transform_class, :extract_attribute, :apply_attribute, :final_class, :finalize_object, :store_transformed_object].each do |method|
       describe "With #{method} set to a string" do
         let(:transform_options) { {
-            extractor: :test_stream,
+            extraction: :test_stream,
             transform: { id: :src_id, name: :src_name },
             transform_collection: Array,
             transform_class:  Hash,
@@ -66,7 +66,7 @@ describe Migratrix::Transforms::Transform do
         }
         let(:transform) { TestTransform.new :test, transform_options }
         let(:test_stream) { [{src_id: 42, src_name: "Alice"}, {src_id: 43, src_name: "Bob"} ] }
-        let(:extractors) { { test_stream: mock("extractor", name: "test_stream", extract: test_stream )}}
+        let(:extractions) { { test_stream: mock("extraction", name: "test_stream", extract: test_stream )}}
 
         it "should raise TypeError" do
           lambda { transform.transform(test_stream) }.should raise_error(TypeError)
@@ -77,7 +77,7 @@ describe Migratrix::Transforms::Transform do
 
   describe "with Proc options" do
     let(:transform) { TestTransform.new :test, {
-        extractor: :test_stream,
+        extraction: :test_stream,
         transform: { id: :src_id, name: :src_name },
         transform_collection: ->{ Array.new },
         transform_class:  ->(row) { Hash.new },
@@ -90,10 +90,10 @@ describe Migratrix::Transforms::Transform do
     }
 
     let(:test_stream) { [{src_id: 42, src_name: "Alice"}, {src_id: 43, src_name: "Bob"} ] }
-    let(:extractors) { { test_stream: mock("extractor", name: "test_stream", extract: test_stream )}}
+    let(:extractions) { { test_stream: mock("extraction", name: "test_stream", extract: test_stream )}}
 
     before do
-      TestTransform.stub!(:extractors).and_return(extractors)
+      TestTransform.stub!(:extractions).and_return(extractions)
     end
 
     it "should delegate to procs" do
@@ -106,7 +106,7 @@ describe Migratrix::Transforms::Transform do
 
   describe "with symbol and class options" do
     let(:transform) { TestTransform.new :test, {
-        extractor: :test_stream,
+        extraction: :test_stream,
         transform: { id: :src_id, name: :src_name },
         transform_collection: Array,
         transform_class:  Hash,
@@ -117,10 +117,10 @@ describe Migratrix::Transforms::Transform do
     }
 
     let(:test_stream) { [{src_id: 42, src_name: "Alice"}, {src_id: 43, src_name: "Bob"} ] }
-    let(:extractors) { { test_stream: mock("extractor", name: "test_stream", extract: test_stream )}}
+    let(:extractions) { { test_stream: mock("extraction", name: "test_stream", extract: test_stream )}}
 
     before do
-      TestTransform.stub!(:extractors).and_return(extractors)
+      TestTransform.stub!(:extractions).and_return(extractions)
     end
 
     it "should delegate to procs" do
