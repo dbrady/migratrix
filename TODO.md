@@ -1,5 +1,30 @@
 # TODO #
 
+Version 0.8.0 Work to do: Need to add in MVP required features, such
+as an ActiveRecord Load and Transform.
+
+* Technically the default Load will work with AR just fine, but...
+
+* Need to codify the strategy of merge transforms, e.g. perform a
+  find_or_create in the transform instead of calling new. Again,
+  technically the default Transform can do this for us but this seems
+  like such a common case that it needs codifying.
+
+* Handle duplicates. Whenever extracting a left-join query, the
+  left-hand object will be duplicated on every child row.
+
+* Need to iron out multirow composition. E.g. when extracting a
+  left-joined query, the right-hand object on each row will be a
+  member of the has_many collection for that object. But if we're
+  transforming to NoSQL or an xml-based object, etc, this collection
+  might simply be embedded on the parent object. We need to codify
+  this notion that a row might simply update objects in the transform
+  instead of always creating new ones.
+
+* habtms - the worst of both worlds above. Every left AND right object
+  might be new, might already exist, and might need to be accreted
+  onto an existing document object. FUN!
+
 * [ ] Load::ActiveRecord
 
 * [ ] Basically rip out the Migratrix class as much as possible. It's
