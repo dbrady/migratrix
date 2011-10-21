@@ -1,19 +1,26 @@
 # TODO #
 
-Version 0.8.0 Work to do: Need to add in MVP required features, such
-as an ActiveRecord Load and Transform.
+## CRITICAL FEATURES FOR 0.9.0 ##
 
-* Technically the default Load will work with AR just fine, but...
+* [ ] Migration Log
 
-* Need to codify the strategy of merge transforms, e.g. perform a
-  find_or_create in the transform instead of calling new. Again,
+* [ ] Rename Extractor -> Extract. I've managed to keep Transform and
+  Load from becoming Transformer and Loader; there's no reason to let
+  extractor be different.
+
+* [ ] Load::ActiveRecord. Do we really need this? Do we need anything
+  besides the default Load strategy? (Remember, the AR class is set in
+  Transform, so save should just work...)
+
+* [ ] Codify the strategy of merge transforms, e.g. perform a
+  `find_or_create` in the transform instead of calling new. Again,
   technically the default Transform can do this for us but this seems
   like such a common case that it needs codifying.
 
-* Handle duplicates. Whenever extracting a left-join query, the
+* [ ] Handle duplicates. Whenever extracting a left-join query, the
   left-hand object will be duplicated on every child row.
 
-* Need to iron out multirow composition. E.g. when extracting a
+* [ ] Iron out multirow composition. E.g. when extracting a
   left-joined query, the right-hand object on each row will be a
   member of the has_many collection for that object. But if we're
   transforming to NoSQL or an xml-based object, etc, this collection
@@ -21,31 +28,19 @@ as an ActiveRecord Load and Transform.
   this notion that a row might simply update objects in the transform
   instead of always creating new ones.
 
-* habtms - the worst of both worlds above. Every left AND right object
-  might be new, might already exist, and might need to be accreted
-  onto an existing document object. FUN!
+* [ ] habtms - the worst of both worlds above. Every left AND right
+  object might be new, might already exist, and might need to be
+  accreted onto an existing document object. FUN! Make proofs of
+  concepts of all of these.
 
-* [ ] Load::ActiveRecord
-
-* [ ] Basically rip out the Migratrix class as much as possible. It's
-  making more and more sense to just have people say
-  MyMigration.migrate(options). It's a LOT more testable, too, than
-  having global magic load paths.
-
-* [ ] Decide on default migratrix n-transform strategy: Do we have
-  the transforms run sequentially, or do we attempt to have them
-  process records in parallel?
-  
-* [ ] Even worse: decide on overall migration strategy: Do we take 1
-  record and ETL it, or extract all records, then transform all, then
-  load all, or do them in batches, etc. See lazy streams idea later,
-  might make things interesting....
-  
 * [ ] Get vanilla AR 1->1 migration working.
 
 * [ ] Create before/after class methods and method call chains.
 
-* [ ] Use around filters to log main method calls
+* [ ] Use around filters to log main method calls, even on
+  client-extended classes
+  
+* [ ] console=true should become console=log_level  
 
 * [ ] Consider having a `Migratrix::ModelBase < ActiveRecord::Base`
   base class with all the ActiveRecord migration helpers pre-mixed-in.
@@ -71,13 +66,21 @@ as an ActiveRecord Load and Transform.
   and either the transform phase or the load phase must access those
   attribute values and write them to the CSV.
   
-* [ ] Get migration log working
-
-* [ ] Extract MigrationRegistry. Moving this down because while it's a
-  pretty obvious wart in Migratrix, it's a *tiny* obvious wart.
-
+* [ ] Proof of Concept of iterative migrations (migrate a table, then
+  the legacy table gets new data, so the next migration migrates the
+  updates, inserts and deletes). (NOTE: This was REALLY hard to do in
+  the prototype project--had to put update and delete triggers in the
+  legacy database, and then bifurcate the tool into full_migrations
+  and partial_migrations. It's okay if this gets pushed out after
+  version 1.0.0)
+  
 # Problems For Later #
 
+* [ ] Extract Component management in Migration. Right now Migratrion
+  has a ton of duplicate code for extract, transform and load.
+  (`self.set_load`, `self.extend_load`, `self.loads`, and `loads` is
+  duplicated for `extractor`, `transform`, and `load`)
+  
 * Problem for later: What happens if we're doing a BFQ join query in
   batches of 1000, and each Load record is comprised of rand(100) rows
   in the SQL input, and a Load record spans the 1000 input rows?
