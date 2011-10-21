@@ -12,13 +12,15 @@ end
 describe Migratrix::Migratrix do
   let (:migratrix) { Migratrix::Migratrix.new }
 
-  it "exists (sanity check)" do
-    Migratrix.should_not be_nil
-    Migratrix.class.should == Module
-    Migratrix.class.should_not == Class
-    Migratrix::Migratrix.class.should_not == Module
-    Migratrix::Migratrix.class.should == Class
-    Migratrix.const_defined?("Migratrix").should be_true
+  describe "sanity check cat" do
+    it "is sanity checked" do
+      Migratrix.should_not be_nil
+      Migratrix.class.should == Module
+      Migratrix.class.should_not == Class
+      Migratrix::Migratrix.class.should_not == Module
+      Migratrix::Migratrix.class.should == Class
+      Migratrix.const_defined?("Migratrix").should be_true
+    end
   end
 
   describe "Migration Component Registry" do

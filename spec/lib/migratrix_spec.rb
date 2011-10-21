@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Migratrix do
-  describe "sanity check kitty" do
+  describe "sanity check cat" do
     it "is sanity checked" do
       Migratrix.should_not be_nil
       Migratrix.class.should == Module
