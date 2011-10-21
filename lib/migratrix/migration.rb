@@ -66,6 +66,18 @@ module Migratrix
       self.class.transforms
     end
 
+    def self.set_load(name, type, options={})
+      loads[name] = Migratrix.load(name, type, options)
+    end
+
+    def self.loads
+      @loads ||= {}
+    end
+
+    def loads
+      self.class.loads
+    end
+
     def extract
       extracted_items = {}
       extractors.each do |name, extractor|
@@ -85,18 +97,18 @@ module Migratrix
       transformed_items
     end
 
-#     # Saves the migrated data by "loading" it into our database or
-#     # other data sink. Loaders have their own names, and by default
-#     # they depend on a transformed_items key of the same name, but you
-#     # may override this behavior by setting :source => :name or
-#     # possibly :source => [:name1, :name2, etc].
-#     def load(transformed_items)
-#       loaded_items = { }
-#       loads.each do |name, load|
-#         transformed_items[load.name] = load.load extracted_items
-#       end
-#       loaded_items
-#     end
+    # Saves the migrated data by "loading" it into our database or
+    # other data sink. Loaders have their own names, and by default
+    # they depend on a transformed_items key of the same name, but you
+    # may override this behavior by setting :source => :name or
+    # possibly :source => [:name1, :name2, etc].
+    def load(transformed_items)
+      loaded_items = { }
+      loads.each do |name, load|
+        loaded_items[load.name] = load.load transformed_items[load.transform]
+      end
+      loaded_items
+    end
 
     # Perform the migration
     # TODO: turn this into a strategy object. This pattern migrates

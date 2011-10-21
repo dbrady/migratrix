@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 class TestTransform < Migratrix::Transforms::Transform
+  include Migratrix::Loggable
 end
 
 describe Migratrix::Transforms::Transform do
@@ -11,26 +12,25 @@ describe Migratrix::Transforms::Transform do
     end
   end
 
+  let(:loggable) { TestTransform.new(:loggable) }
+  it_should_behave_like "loggable"
+
   describe ".local_valid_options" do
-    let(:base_transform) { Migratrix::Transforms::Transform }
     it "returns the valid set of option keys" do
       Migratrix::Transforms::Transform.local_valid_options.should == [:apply_attribute, :extract_attribute, :extractor, :final_class, :finalize_object, :store_transform, :target, :transform, :transform_class, :transform_collection]
     end
   end
 
+
   describe "#extractor" do
-    context "with extractor name set" do
-      let(:transform) {  Migratrix::Transforms::Transform.new(:pants_transform, { extractor: :pants_extractor })}
-      it "returns extractor name" do
-        transform.extractor.should == :pants_extractor
-      end
+    it "returns extractor name when set" do
+      transform = Migratrix::Transforms::Transform.new(:pants_transform, { extractor: :pants_extractor })
+      transform.extractor.should == :pants_extractor
     end
 
-    context "without extractor name set" do
-      let(:transform) {  Migratrix::Transforms::Transform.new(:pants_transform)}
-      it "returns transform name" do
-        transform.extractor.should == :pants_transform
-      end
+    it "#returns transform name when no extractor name is set" do
+      transform = Migratrix::Transforms::Transform.new(:pants_transform)
+      transform.extractor.should == :pants_transform
     end
   end
 

@@ -6,6 +6,9 @@ end
 class TestTransform < Migratrix::Transforms::Transform
 end
 
+class TestLoad < Migratrix::Loads::Load
+end
+
 describe Migratrix::Migratrix do
   let (:migratrix) { Migratrix::Migratrix.new }
 
@@ -50,9 +53,23 @@ describe Migratrix::Migratrix do
         transform = TestTransform.new :monkeys
         Migratrix::Migratrix.transforms.registered?(:test_transform).should be_true
         Migratrix::Migratrix.transforms.class_for(:test_transform).should == TestTransform
-#         # separate this--registration names the class, not the transform stream
-#         TestTransform.should_receive(:new).with(:monkeys, { :source => Hash }).and_return(transform)
-#         Migratrix::Migratrix.transform(:test_transform, :monkeys, { :source => Hash}).should == transform
+      end
+    end
+
+    describe ".register_load" do
+      before do
+        Migratrix::Migratrix.register_load :test_load, TestLoad
+      end
+
+      it "registers the load" do
+        Migratrix::Migratrix.loads.registered?(:test_load).should be_true
+        Migratrix::Migratrix.loads.class_for(:test_load).should == TestLoad
+      end
+
+      it "creates the load with given options" do
+        load = TestLoad.new :monkeys
+        Migratrix::Migratrix.loads.registered?(:test_load).should be_true
+        Migratrix::Migratrix.loads.class_for(:test_load).should == TestLoad
       end
     end
   end

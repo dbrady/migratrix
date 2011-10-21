@@ -11,6 +11,9 @@ describe Migratrix::Transforms::Map do
     end
   end
 
+  let(:loggable) { TestMap.new(:loggable) }
+  it_should_behave_like "loggable"
+
   describe ".local_valid_options" do
     it "returns the valid set of option keys" do
       Migratrix::Transforms::Map.local_valid_options.should == []

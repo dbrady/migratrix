@@ -76,6 +76,21 @@ module Migratrix
     end
     # --------------------
 
+    # --------------------
+    # loads
+    def self.loads
+      registry[:loads]
+    end
+
+    def self.register_load(name, klass, options={})
+      self.loads.register(name, klass, options)
+    end
+
+    def self.load(load_name, class_name, options={})
+      self.loads.class_for(class_name).new(load_name, options)
+    end
+    # --------------------
+
     # End MigrationRegistry
     # ----------------------------------------------------------------------
   end

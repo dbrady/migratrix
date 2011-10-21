@@ -61,6 +61,18 @@ describe Migratrix do
         spec_delegates_to_migratrix_class :transforms
       end
     end
+
+    describe ".register_load" do
+      it "delegates to Migratrix::Migratrix" do
+        spec_delegates_to_migratrix_class :register_load, :marbles, Array, 3
+      end
+    end
+
+    describe ".loads" do
+      it "delegates to Migratrix::Migratrix" do
+        spec_delegates_to_migratrix_class :loads
+      end
+    end
   end
 
   describe "gem-installed components:" do

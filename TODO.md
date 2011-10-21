@@ -1,10 +1,23 @@
 # TODO #
 
-* [ ] Load
+* [ ] Option inheritance--in migrations.
 
-* [ ] Load::YAML
+    class SomeMigration < Migration
+      set_extractor :evens, :active_record, { where: 'id % 2 = 0'}
+    end
+    
+    class ChildMigration < SomeMigration
+      extend_extractor :evens, { source: Legacy::Children }
+    end
+    
+    ChildMigration.new.extractor(:evens).options
+    # => { where: 'id % 2 = 0', source: Legacy::Children }
+  
 
 * [ ] Change over all Client constant migrations
+  * [ ] Refactor/extend Migratrix: A constants migration should only
+    need to know the ActiveRecord source, the column mapping, and the
+    YAML filename. Can we inherit everything but those three elements?
   * [ ] Delete config/constants/*.yml
   * [ ] Change Client constants initted to load hash, not array
   * [ ] Create migrators for the others
@@ -26,8 +39,6 @@
   load all, or do them in batches, etc. See lazy streams idea later,
   might make things interesting....
   
-* [ ] Extract out Load class
-
 * [ ] Get vanilla AR 1->1 migration working.
 
 * [ ] Create before/after class methods and method call chains.
@@ -45,27 +56,6 @@
     end
     
   ...and build up their legacy models from there.
-
-* [ ] Tease apart `Migration.execute` so that the log can be easily
-  redirected at the Migratrix level but `execute` is either handled by
-  the appropriate connection. We cannot simply call
-  `ActiveRecord::Base.connection` because in an AR->AR migration, the
-  connection may be changed. If we put the method in
-  `ActiveRecord::Base`, and have it call `connection`, that should let
-  legacy subclasses of `ActiveRecord::Base` refer to their own legacy
-  connections. But that means they still need access to the
-  `Migratrix` logger... ah, yes: Have `ActiveRecord::Base.execute`
-  call `Migratrix.logger` explicitly, and then call `execute` on its
-  own `connection`. That should work.
-
-* [ ] Create `strategy` class method(s). Pat likes a single `strategy`
-  call with a hash that has a key for each phase pointing to an array
-  of configurations each phase; I think I like individual strategy
-  methods for each phase because the single configuration hash is
-  pretty huge. Best of both worlds: write the single `strategy` method
-  and have it call `extract_strategy`, `transform_strategy`, and
-  `load_strategy`, which lets users do it either way and keeps the
-  code more testable. Worky.
 
 * [ ] Get Hairy BFQ->n migration working, either as Multimodel (with
   tricksy joins in the legacy models)->Multimodel or SQL->Multimodel,
@@ -186,7 +176,9 @@ them all to get to the tasks that need doing.
   `transform_class` doesn't have to be a lambdba, it could actually BE
   a class....
 
+* [*] Load
 
+* [*] Load::YAML
 
 
 ^^^ New Done Stuff Goes here  

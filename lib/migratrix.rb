@@ -22,6 +22,11 @@ module Migratrix
   require APP + 'transforms/transform'
   require APP + 'transforms/map'
 
+  require APP + 'loads/load'
+  require APP + 'loads/yaml'
+#  require APP + 'loads/csv'
+#  require APP + 'loads/active_record'
+
 
   include ::Migratrix::Loggable
 
@@ -39,6 +44,14 @@ module Migratrix
 
   def self.transforms
     ::Migratrix::Migratrix.transforms
+  end
+
+  def self.register_load(name, klass, init_options={})
+    ::Migratrix::Migratrix.register_load(name, klass, init_options)
+  end
+
+  def self.loads
+    ::Migratrix::Migratrix.loads
   end
 
   def self.logger
@@ -59,5 +72,8 @@ module Migratrix
 
   register_transform :transform, Transforms::Transform
   register_transform :map, Transforms::Map
+
+  register_load :load, Loads::Load
+  register_load :yaml, Loads::Yaml
 end
 

@@ -168,7 +168,7 @@ module Migratrix
       # Super Advanced Magic (YAGNI):
       # - instead of procs, take blocks and use define_method on them
       #   so they're faster.
-      def transform(extracted_objects={})
+      def transform(extracted_objects)
         info "Transform #{name} started transform."
         transformed_collection = create_transformed_collection
         extracted_objects.each do |extracted_object|
