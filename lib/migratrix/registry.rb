@@ -1,5 +1,5 @@
 module Migratrix
-  # Basically a place to story our factories
+  # Basically a place to store our factories
   class Registry
     def register(name, klass, init_options)
       registry[name] = [klass, init_options]

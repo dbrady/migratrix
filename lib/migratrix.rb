@@ -68,6 +68,7 @@ module Migratrix
 
   # ----------------------------------------------------------------------
   # Register in-gem Components
+  register_extractor :extractor, Extractors::Extractor
   register_extractor :active_record, Extractors::ActiveRecord
 
   register_transform :transform, Transforms::Transform

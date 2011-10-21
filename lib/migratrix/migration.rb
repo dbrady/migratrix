@@ -46,6 +46,13 @@ module Migratrix
       extractors[extractor_name] = Migratrix.extractor(class_name, extractor_name, options)
     end
 
+    def self.extend_extractor(extractor_name, options={})
+      migration = ancestors.detect {|k| k.respond_to?(:extractors) && k.extractors[extractor_name]}
+      raise ExtractorNotDefined.new("Could not extend extractar '%s'; no parent Migration defines it" % extractor_name) unless migration
+      extractor = migration.extractors[extractor_name]
+      extractors[extractor_name] = extractor.class.new(extractor_name, extractor.options.merge(options))
+    end
+
     def self.extractors
       @extractors ||= {}
     end

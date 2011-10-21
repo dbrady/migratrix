@@ -5,6 +5,15 @@ require 'spec_helper'
 class TestMigration < Migratrix::Migration
 end
 
+class ChildMigration1 < TestMigration
+end
+
+class ChildMigration2 < TestMigration
+end
+
+class GrandchildMigration1 < ChildMigration1
+end
+
 describe Migratrix::Migration do
   let(:migration) { TestMigration.new :cheese => 42 }
   let(:mock_extractor) { mock("Migratrix::Extractors::ActiveRecord", :name => :pets, :extract => 43, :valid_options => ["fetchall", "limit", "offset", "order", "where"])}
@@ -151,6 +160,63 @@ describe Migratrix::Migration do
         TestMigration.valid_options.should == [:console, :fetchall, :limit, :map, :offset, :order, :where]
       end
     end
+  end
+
+  describe "extend components" do
+    before do
+      [TestMigration, ChildMigration1, ChildMigration2, GrandchildMigration1].each do |klass|
+        [:extractors, :transforms, :loads].each do |kollection|
+          klass.send(kollection).send(:clear)
+        end
+      end
+      TestMigration.set_extractor :cheese, :extractor, { where: 'id>100' }
+      TestMigration.set_transform :cheese, :transform, { transform_collection: Array }
+      TestMigration.set_load :cheese, :yaml, { transform: :cheese }
+
+    end
+
+    it "extends the component to child class" do
+      ChildMigration1.extend_extractor :cheese, { source: Array }
+      ChildMigration1.new.extractors[:cheese].options.should == { source: Array, where: 'id>100'}
+    end
+
+    it "extends the component to the grandchild class" do
+      ChildMigration1.extend_extractor :cheese, { source: Array }
+      GrandchildMigration1.extend_extractor :cheese, { limit: 50 }
+      GrandchildMigration1.new.extractors[:cheese].options.should == { source: Array, where: 'id>100', limit: 50 }
+    end
+
+    it "extends the component to the grandchild class even if the child class does not extend" do
+      GrandchildMigration1.extend_extractor :cheese, { limit: 50 }
+      GrandchildMigration1.new.extractors[:cheese].options.should == { where: 'id>100', limit: 50 }
+    end
+
+    it "overrides parent options" do
+      ChildMigration1.extend_extractor :cheese, { source: Array, where: 'id>50' }
+      ChildMigration1.new.extractors[:cheese].options.should == { source: Array, where: 'id>50'}
+    end
+
+    it "does not affect sibling class options" do
+      ChildMigration1.extend_extractor :cheese, { source: Array, where: 'id>50' }
+      ChildMigration2.extend_extractor :cheese, { source: Hash, where: 'id>75' }
+      ChildMigration1.new.extractors[:cheese].options.should == { source: Array, where: 'id>50'}
+      ChildMigration2.new.extractors[:cheese].options.should == { source: Hash, where: 'id>75'}
+    end
+
+    it "does not affect parent class options" do
+      ChildMigration1.extend_extractor :cheese, { source: Array, where: 'id>50' }
+      ChildMigration1.new.extractors[:cheese].options.should == { source: Array, where: 'id>50'}
+      TestMigration.new.extractors[:cheese].options.should == { where: 'id>100'}
+    end
+
+    it "raises MigrationNotFoundError if no parent has that component" do
+      lambda { ChildMigration1.extend_extractor :blargle, { source: Array, where: 'id>50' } }.should raise_error(Migratrix::ExtractorNotDefined)
+    end
+
+
+    # TODO: lambdas cannot be deep-copied, and form closures at the
+    # time of creation. Is there a way to detect if a lambda has a
+    # closure?
   end
 end
 
