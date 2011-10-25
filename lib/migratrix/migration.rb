@@ -4,7 +4,7 @@ module Migratrix
   # Superclass for all migrations. Migratrix COULD check to see that a
   # loaded migration inherits from this class, but hey, duck typing.
   class Migration
-    include ::Migratrix::Loggable
+    include Migratrix::Loggable
     include ActiveModel::AttributeMethods
     include Migratrix::ValidOptions
 
