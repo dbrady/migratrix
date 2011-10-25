@@ -2,7 +2,26 @@
 
 ## CRITICAL FEATURES FOR 0.9.0 ##
 
-* [ ] Callbacks - `before_extract`, `after_load`, etc
+* [x] Callbacks - `before_extract`, `after_load`, etc
+
+* [ ] Bug: inherit components by default! Child migrators should not
+  need to call extend_* to inherit a component.
+
+* [ ] Notion of *THE* component. If you set_extract, et al, without a
+  nickname, it should assign it to e.g. `:default`. So you can say
+  e.g. `set_extract :source => Pants`. This is a sensible
+  simplification since most migrations only have one stream.
+  
+* [ ] Crossing the Streams. Although we support the notion of multiple
+  ETL streams, currently a transform or load only receive the single
+  stream that matches their name (or that they have named). Need to
+  either make it possible for a trasform to get at all of the
+  extractors, or have e.g. `extractor: [:clothes, :tools]` cause
+  `transform.transform` to receive `{clothes: [...], tools: [...]}`
+  instead of always `[...]`.
+
+* [ ] `transform.transform` and `load.load` should receive
+  `migration.options`
 
 * [ ] Migration Log
 
