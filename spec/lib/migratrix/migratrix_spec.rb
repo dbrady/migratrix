@@ -108,6 +108,5 @@ describe Migratrix::Migratrix do
       end
     end
   end
-
 end
 
