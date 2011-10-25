@@ -2,6 +2,8 @@
 
 ## CRITICAL FEATURES FOR 0.9.0 ##
 
+* [ ] Callbacks - `before_extract`, `after_load`, etc
+
 * [ ] Migration Log
 
 * [ ] Load::ActiveRecord. Do we really need this? Do we need anything
