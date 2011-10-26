@@ -79,8 +79,8 @@ module Migratrix
   register_extraction :no_op, Extractions::NoOp
 
   register_transform :transform, Transforms::Transform
-  register_transform :no_op, Transforms::NoOp
   register_transform :map, Transforms::Map
+  register_transform :no_op, Transforms::NoOp
 
   register_load :load, Loads::Load
   register_load :no_op, Loads::NoOp
