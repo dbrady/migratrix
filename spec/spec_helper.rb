@@ -28,7 +28,9 @@ Dir[SPEC + "support/**/*.rb"].each {|f| require f}
 
 require LIB + 'migratrix'
 
-require SPEC + "fixtures/migrations/marbles_migration"
+$:.unshift SPEC + "fixtures/migrations/"
+$:.unshift SPEC + "fixtures/components/"
+
 
 # Redirect singleton logger to logger of our choice, then release it
 # after the spec finishes or crashes.

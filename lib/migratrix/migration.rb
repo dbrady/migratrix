@@ -45,15 +45,29 @@ module Migratrix
     # TODO: THIS IS HUGE DUPLICATION, REFACTOR REFACTOR REFACTOR
 
     # extraction crap
-    def self.set_extraction(extraction_name, class_name, options={})
-      extractions[extraction_name] = Migratrix.extraction(class_name, extraction_name, options)
+    # set_extraction :nickname, :registered_name, options_hash
+    # set_extraction :nickname, :registered_name # options = {}
+    # set_extraction :registered_name, options_hash # nickname = :default
+    # set_extraction :registered_name # nickname = :default, options={}
+    def self.set_extraction(nickname, registered_name=nil, options=nil)
+      # barf, seriously these args need some detangler.
+      if registered_name.nil?
+        nickname, registered_name, options = :default, nickname, {}
+      elsif options.nil?
+        if registered_name.is_a?(Hash)
+          nickname, registered_name, options = :default, nickname, registered_name
+        else
+          nickname, registered_name, options = nickname, registered_name, {}
+        end
+      end
+      extractions[nickname] = Migratrix.extraction(nickname, registered_name, options)
     end
 
-    def self.extend_extraction(extraction_name, options={})
-      migration = ancestors.detect {|k| k.respond_to?(:extractions) && k.extractions[extraction_name]}
-      raise ExtractionNotDefined.new("Could not extend extractar '%s'; no parent Migration defines it" % extraction_name) unless migration
-      extraction = migration.extractions[extraction_name]
-      extractions[extraction_name] = extraction.class.new(extraction_name, extraction.options.merge(options))
+    def self.extend_extraction(nickname, options={})
+      migration = ancestors.detect {|k| k.respond_to?(:extractions) && k.extractions[nickname]}
+      raise ExtractionNotDefined.new("Could not extend extraction '%s'; no parent Migration defines it" % nickname) unless migration
+      extraction = migration.extractions[nickname]
+      extractions[nickname] = extraction.class.new(nickname, extraction.options.merge(options))
     end
 
     def self.extractions
@@ -72,8 +86,22 @@ module Migratrix
     end
 
     # transform crap
-    def self.set_transform(name, type, options={})
-      transforms[name] = Migratrix.transform(name, type, options)
+    # set_transform :nickname, :registered_name, options_hash
+    # set_transform :nickname, :registered_name # options = {}
+    # set_transform :registered_name, options_hash # nickname = :default
+    # set_transform :registered_name # nickname = :default, options={}
+    def self.set_transform(nickname, registered_name=nil, options=nil)
+      # barf, seriously these args need some detangler.
+      if registered_name.nil?
+        nickname, registered_name, options = :default, nickname, {}
+      elsif options.nil?
+        if registered_name.is_a?(Hash)
+          nickname, registered_name, options = :default, nickname, registered_name
+        else
+          nickname, registered_name, options = nickname, registered_name, {}
+        end
+      end
+      transforms[nickname] = Migratrix.transform(nickname, registered_name, options)
     end
 
     def self.extend_transform(transform_name, options={})
@@ -99,9 +127,27 @@ module Migratrix
     end
 
     # load crap
-    def self.set_load(name, type, options={})
-      loads[name] = Migratrix.load(name, type, options)
+    # set_load :nickname, :registered_name, options_hash
+    # set_load :nickname, :registered_name # options = {}
+    # set_load :registered_name, options_hash # nickname = :default
+    # set_load :registered_name # nickname = :default, options={}
+    def self.set_load(nickname, registered_name=nil, options=nil)
+      # barf, seriously these args need some detangler.
+      if registered_name.nil?
+        nickname, registered_name, options = :default, nickname, {}
+      elsif options.nil?
+        if registered_name.is_a?(Hash)
+          nickname, registered_name, options = :default, nickname, registered_name
+        else
+          nickname, registered_name, options = nickname, registered_name, {}
+        end
+      end
+      loads[nickname] = Migratrix.load(nickname, registered_name, options)
     end
+
+#     def self.set_load(name, type, options={})
+#       loads[name] = Migratrix.load(name, type, options)
+#     end
 
     def self.extend_load(load_name, options={})
       migration = ancestors.detect {|k| k.respond_to?(:loads) && k.loads[load_name]}

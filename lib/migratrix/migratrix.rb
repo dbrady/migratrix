@@ -52,12 +52,12 @@ module Migratrix
       registry[:extractions]
     end
 
-    def self.register_extraction(class_name, klass, options={})
-      self.extractions.register(class_name, klass, options)
+    def self.register_extraction(registered_name, klass, options={})
+      self.extractions.register(registered_name, klass, options)
     end
 
-    def self.extraction(class_name, extraction_name, options={})
-      self.extractions.class_for(class_name).new(extraction_name, options)
+    def self.extraction(nickname, registered_name, options={})
+      self.extractions.class_for(registered_name).new(nickname, options)
     end
     # --------------------
 
@@ -71,8 +71,8 @@ module Migratrix
       self.transforms.register(name, klass, options)
     end
 
-    def self.transform(transform_name, class_name, options={})
-      self.transforms.class_for(class_name).new(transform_name, options)
+    def self.transform(nickname, registered_name, options={})
+      self.transforms.class_for(registered_name).new(nickname, options)
     end
     # --------------------
 
@@ -86,8 +86,8 @@ module Migratrix
       self.loads.register(name, klass, options)
     end
 
-    def self.load(load_name, class_name, options={})
-      self.loads.class_for(class_name).new(load_name, options)
+    def self.load(nickname, registered_name, options={})
+      self.loads.class_for(registered_name).new(nickname, options)
     end
     # --------------------
 

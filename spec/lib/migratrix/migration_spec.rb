@@ -1,18 +1,7 @@
 require 'spec_helper'
-
-# This migration is embedded in migration_spec.rb to allow testing of
-# the class methods that specialize subclasses.
-class TestMigration < Migratrix::Migration
-end
-
-class ChildMigration1 < TestMigration
-end
-
-class ChildMigration2 < TestMigration
-end
-
-class GrandchildMigration1 < ChildMigration1
-end
+require 'no_op_components'
+require 'test_migration'
+require 'inherited_migrations'
 
 describe Migratrix::Migration do
   let(:migration) { TestMigration.new :cheese => 42 }
@@ -27,6 +16,31 @@ describe Migratrix::Migration do
       migration.should_receive(:transform).once
       migration.should_receive(:load).once
       migration.migrate
+    end
+  end
+
+  [:extraction, :transform, :load].each do |component|
+    describe ".set_#{component}" do
+      describe "without options" do
+        it "creates #{component} with empty options" do
+          Migratrix::Migratrix.should_receive(component).with(:test, :no_op, {})
+          TestMigration.send "set_#{component}", :test, :no_op
+        end
+      end
+
+      describe "without nickname" do
+        it "creates #{component} with nickname :default" do
+          Migratrix::Migratrix.should_receive(component).with(:default, :no_op, {opt: 2})
+          TestMigration.send "set_#{component}", :no_op, {opt: 2}
+        end
+      end
+
+      describe "without options or nickname" do
+        it "creates #{component} with nickname :default and empty options hash" do
+          Migratrix::Migratrix.should_receive(component).with(:default, :no_op, {})
+          TestMigration.send "set_#{component}", :no_op
+        end
+      end
     end
   end
 

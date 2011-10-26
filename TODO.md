@@ -2,14 +2,6 @@
 
 ## CRITICAL FEATURES FOR 0.9.0 ##
 
-* [ ] Bug: inherit components by default! Child migrators should not
-  need to call extend_* to inherit a component.
-
-* [ ] Default components. If you set_extract, et al, without a
-  nickname, it should assign it to e.g. `:default`. So you can say
-  e.g. `set_extract :source => Pants`. This is a sensible
-  simplification since most migrations only have one stream.
-
 * [ ] Crossing the Streams. Although we support the notion of multiple
   ETL streams, currently a transform or load only receive the single
   stream that matches their name (or that they have named). Need to
@@ -223,6 +215,14 @@ them all to get to the tasks that need doing.
   "vanilla extract", "floral extract", "fruit extract", etc.)
 
 * [x] Callbacks - `before_extract`, `after_load`, etc
+
+* [x] Bug: inherit components by default! Child migrators should not
+  need to call extend_* to inherit a component.
+
+* [x] Default components. If you set_extract, et al, without a
+  nickname, it should assign it to e.g. `:default`. So you can say
+  e.g. `set_extract :source => Pants`. This is a sensible
+  simplification since most migrations only have one stream.
 
 ^^^ New Done Stuff Goes here  
 

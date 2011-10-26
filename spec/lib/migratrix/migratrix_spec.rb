@@ -77,7 +77,7 @@ describe Migratrix::Migratrix do
   end
 
   describe "with logger as a singleton" do
-    let (:migration) { Migratrix::MarblesMigration.new }
+    let (:migration) { Migratrix::Migration.new }
     let (:buffer) { StringIO.new }
 
     def spec_all_loggers_are(this_logger)
@@ -85,7 +85,7 @@ describe Migratrix::Migratrix do
       Migratrix::Migratrix.logger.should == this_logger
       migratrix.logger.should == this_logger
       migration.logger.should == this_logger
-      Migratrix::MarblesMigration.logger.should == this_logger
+      Migratrix::Migration.logger.should == this_logger
     end
 
     describe ".logger=" do
