@@ -162,7 +162,7 @@ describe Migratrix::Migration do
     end
   end
 
-  describe "extending" do
+  describe "with inheritance" do
     before do
       [TestMigration, ChildMigration1, ChildMigration2, GrandchildMigration1].each do |klass|
         [:extractions, :transforms, :loads].each do |kollection|
@@ -172,56 +172,68 @@ describe Migratrix::Migration do
       TestMigration.set_extraction :cheese, :extraction, { first_option: 'id>100' }
       TestMigration.set_transform :cheese, :transform, { first_option: 'id>100' }
       TestMigration.set_load :cheese, :load, { first_option: 'id>100' }
-
     end
 
-    [:extraction, :transform, :load ].each do |component|
-      describe "#{component}" do
-        it "extends the #{component} to child class" do
-          ChildMigration1.send("extend_#{component}", :cheese, { second_option: 2 })
-          ChildMigration1.new.send("#{component}s")[:cheese].options.should == { second_option: 2, first_option: 'id>100'}
-        end
+    describe "extending" do
+      [:extraction, :transform, :load ].each do |component|
+        describe "#{component}" do
+          it "extends the #{component} to child class" do
+            ChildMigration1.send("extend_#{component}", :cheese, { second_option: 2 })
+            ChildMigration1.new.send("#{component}s")[:cheese].options.should == { second_option: 2, first_option: 'id>100'}
+          end
 
-        it "extends the #{component} to the grandchild class" do
-          ChildMigration1.send("extend_#{component}", :cheese, { second_option: 2 })
-          GrandchildMigration1.send("extend_#{component}", :cheese, { surprise_option: 50 })
-          GrandchildMigration1.new.send("#{component}s")[:cheese].options.should == { second_option: 2, first_option: 'id>100', surprise_option: 50 }
-        end
+          it "extends the #{component} to the grandchild class" do
+            ChildMigration1.send("extend_#{component}", :cheese, { second_option: 2 })
+            GrandchildMigration1.send("extend_#{component}", :cheese, { surprise_option: 50 })
+            GrandchildMigration1.new.send("#{component}s")[:cheese].options.should == { second_option: 2, first_option: 'id>100', surprise_option: 50 }
+          end
 
-        it "extends the #{component} to the grandchild class even if the child class does not extend" do
-          GrandchildMigration1.send("extend_#{component}", :cheese, { surprise_option: 50 })
-          GrandchildMigration1.new.send("#{component}s")[:cheese].options.should == { first_option: 'id>100', surprise_option: 50 }
-        end
+          it "extends the #{component} to the grandchild class even if the child class does not extend" do
+            GrandchildMigration1.send("extend_#{component}", :cheese, { surprise_option: 50 })
+            GrandchildMigration1.new.send("#{component}s")[:cheese].options.should == { first_option: 'id>100', surprise_option: 50 }
+          end
 
-        it "overrides parent options" do
-          ChildMigration1.send("extend_#{component}", :cheese, { second_option: 2, first_option: 'id>50' })
-          ChildMigration1.new.send("#{component}s")[:cheese].options.should == { second_option: 2, first_option: 'id>50'}
-        end
+          it "overrides parent options" do
+            ChildMigration1.send("extend_#{component}", :cheese, { second_option: 2, first_option: 'id>50' })
+            ChildMigration1.new.send("#{component}s")[:cheese].options.should == { second_option: 2, first_option: 'id>50'}
+          end
 
-        it "does not affect sibling class options" do
-          ChildMigration1.send("extend_#{component}", :cheese, { second_option: 2, first_option: 'id>50' })
-          ChildMigration2.send("extend_#{component}", :cheese, { zany_option: Hash, first_option: 'id>75' })
-          ChildMigration1.new.send("#{component}s")[:cheese].options.should == { second_option: 2, first_option: 'id>50'}
-          ChildMigration2.new.send("#{component}s")[:cheese].options.should == { zany_option: Hash, first_option: 'id>75'}
-        end
+          it "does not affect sibling class options" do
+            ChildMigration1.send("extend_#{component}", :cheese, { second_option: 2, first_option: 'id>50' })
+            ChildMigration2.send("extend_#{component}", :cheese, { zany_option: Hash, first_option: 'id>75' })
+            ChildMigration1.new.send("#{component}s")[:cheese].options.should == { second_option: 2, first_option: 'id>50'}
+            ChildMigration2.new.send("#{component}s")[:cheese].options.should == { zany_option: Hash, first_option: 'id>75'}
+          end
 
-        it "does not affect parent class options" do
-          ChildMigration1.send("extend_#{component}", :cheese, { second_option: 2, first_option: 'id>50' })
-          ChildMigration1.new.send("#{component}s")[:cheese].options.should == { second_option: 2, first_option: 'id>50'}
-          TestMigration.new.send("#{component}s")[:cheese].options.should == { first_option: 'id>100'}
-        end
+          it "does not affect parent class options" do
+            ChildMigration1.send("extend_#{component}", :cheese, { second_option: 2, first_option: 'id>50' })
+            ChildMigration1.new.send("#{component}s")[:cheese].options.should == { second_option: 2, first_option: 'id>50'}
+            TestMigration.new.send("#{component}s")[:cheese].options.should == { first_option: 'id>100'}
+          end
 
-        it "raises #{component.capitalize}NotDefined if no parent has that #{component}" do
-          exception = "Migratrix::#{component.capitalize}NotDefined".constantize
-          lambda { ChildMigration1.send("extend_#{component}", :blargle, { second_option: 2, first_option: 'id>50' }) }.should raise_error(exception)
+          it "raises #{component.capitalize}NotDefined if no parent has that #{component}" do
+            exception = "Migratrix::#{component.capitalize}NotDefined".constantize
+            lambda { ChildMigration1.send("extend_#{component}", :blargle, { second_option: 2, first_option: 'id>50' }) }.should raise_error(exception)
+          end
         end
       end
     end
 
+    [:extraction, :transform, :load].each do |component|
+      describe "#{component}s" do
+        let(:opts) { { opts_option: 'id>100' } }
 
-    # TODO: lambdas cannot be deep-copied, and form closures at the
-    # time of creation. Is there a way to detect if a lambda has a
-    # closure?
+        it "inherit from ancestor #{component}s" do
+          GrandchildMigration1.send("#{component}s").should == TestMigration.send("#{component}s")
+        end
+
+        it "are merged with ancestor #{component}s" do
+          GrandchildMigration1.send "set_#{component}", :wine, component, opts
+          my_component = GrandchildMigration1.send("#{component}s")[:wine]
+          GrandchildMigration1.send("#{component}s").should == TestMigration.send("#{component}s").merge( { wine: my_component })
+        end
+      end
+    end
   end
 end
 

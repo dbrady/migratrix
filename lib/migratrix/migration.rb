@@ -58,6 +58,13 @@ module Migratrix
 
     def self.extractions
       @extractions ||= {}
+      ancestry = ancestors.select {|klass| klass != self && klass.respond_to?(:extractions) }.reverse
+      # take oldest ancestor and merge extractions forward
+      ext = {}
+      ancestry.each do |ancestor|
+        ext = ext.merge(ancestor.extractions || {})
+      end
+      @extractions = ext.merge(@extractions)
     end
 
     def extractions
@@ -78,6 +85,13 @@ module Migratrix
 
     def self.transforms
       @transforms ||= {}
+      ancestry = ancestors.select {|klass| klass != self && klass.respond_to?(:transforms) }.reverse
+      # take oldest ancestor and merge transforms forward
+      ext = {}
+      ancestry.each do |ancestor|
+        ext = ext.merge(ancestor.transforms || {})
+      end
+      @transforms = ext.merge(@transforms)
     end
 
     def transforms
@@ -98,6 +112,13 @@ module Migratrix
 
     def self.loads
       @loads ||= {}
+      ancestry = ancestors.select {|klass| klass != self && klass.respond_to?(:loads) }.reverse
+      # take oldest ancestor and merge loads forward
+      ext = {}
+      ancestry.each do |ancestor|
+        ext = ext.merge(ancestor.loads || {})
+      end
+      @loads = ext.merge(@loads)
     end
 
     def loads
