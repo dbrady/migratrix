@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'no_op_components'
 require 'test_migration'
 require 'inherited_migrations'
 

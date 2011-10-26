@@ -20,12 +20,15 @@ module Migratrix
   require APP + 'migratrix'
 
   require APP + 'extractions/extraction'
+  require APP + 'extractions/no_op'
   require APP + 'extractions/active_record'
 
   require APP + 'transforms/transform'
+  require APP + 'transforms/no_op'
   require APP + 'transforms/map'
 
   require APP + 'loads/load'
+  require APP + 'loads/no_op'
   require APP + 'loads/yaml'
 #  require APP + 'loads/csv'
 #  require APP + 'loads/active_record'
@@ -73,11 +76,15 @@ module Migratrix
   # Register in-gem Components
   register_extraction :extraction, Extractions::Extraction
   register_extraction :active_record, Extractions::ActiveRecord
+  register_extraction :no_op, Extractions::NoOp
 
   register_transform :transform, Transforms::Transform
+  register_transform :no_op, Transforms::NoOp
   register_transform :map, Transforms::Map
 
   register_load :load, Loads::Load
+  register_load :no_op, Loads::NoOp
   register_load :yaml, Loads::Yaml
+
 end
 

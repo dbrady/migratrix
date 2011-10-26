@@ -1,5 +1,3 @@
-require 'no_op_components'
-
 class TestCallbackMigration < Migratrix::Migration
   set_extraction :test, :no_op
   set_transform :test, :no_op
@@ -127,9 +125,6 @@ end
 describe "callbacks" do
   describe "sanity check cat" do
     it "is sanity checked" do
-      NoOpExtraction.should_not be_nil
-      NoOpTransform.should_not be_nil
-      NoOpLoad.should_not be_nil
       TestCallbackMigration.should_not be_nil
       MethodCallbackMigration.should_not be_nil
     end
