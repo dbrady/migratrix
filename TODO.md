@@ -81,7 +81,11 @@
   and partial_migrations. It's okay if this gets pushed out after
   version 1.0.0)
   
-# Problems For Later #
+## Critical Features for 1.0.0 ##  
+ 
+* [ ] Documentation! Documentation! Documentation!
+ 
+## Problems For Later ##
 
 * [ ] Extract Component management in Migration. Right now Migratrion
   has a ton of duplicate code for extract, transform and load.
