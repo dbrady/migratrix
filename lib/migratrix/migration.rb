@@ -105,10 +105,10 @@ module Migratrix
       transforms[nickname] = Migratrix.transform(nickname, registered_name, options)
     end
 
-    def self.extend_transform(nickname, options={})
+    def self.extend_transform(nickname, options=nil)
       nickname, options = :default, nickname if options.nil?
       migration = ancestors.detect {|k| k.respond_to?(:transforms) && k.transforms[nickname]}
-      raise TransformNotDefined.new("Could not extend extractar '%s'; no parent Migration defines it" % nickname) unless migration
+      raise TransformNotDefined.new("Could not extend transform '%s'; no parent Migration defines it" % nickname) unless migration
       transform = migration.transforms[nickname]
       transforms[nickname] = transform.class.new(nickname, transform.options.merge(options))
     end
@@ -151,10 +151,10 @@ module Migratrix
 #       loads[name] = Migratrix.load(name, type, options)
 #     end
 
-    def self.extend_load(nickname, options={})
+    def self.extend_load(nickname, options=nil)
       nickname, options = :default, nickname if options.nil?
       migration = ancestors.detect {|k| k.respond_to?(:loads) && k.loads[nickname]}
-      raise LoadNotDefined.new("Could not extend extractar '%s'; no parent Migration defines it" % nickname) unless migration
+      raise LoadNotDefined.new("Could not extend load '%s'; no parent Migration defines it" % nickname) unless migration
       load = migration.loads[nickname]
       loads[nickname] = load.class.new(nickname, load.options.merge(options))
     end
