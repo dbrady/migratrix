@@ -1,7 +1,7 @@
 spec = Gem::Specification.new do |s|
   s.name = 'migratrix'
-  s.version = '0.8.3'
-  s.date = '2011-10-27'
+  s.version = '0.8.4'
+  s.date = '2011-10-28'
   s.summary = 'Rails 3 legacy database migratrion tool supporting multiple strategies'
   s.email = "github@shinybit.com"
   s.homepage = "http://github.com/dbrady/migratrix/"
