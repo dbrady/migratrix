@@ -30,13 +30,13 @@ describe Migratrix::Extractions::ActiveRecord do
 
   describe ".local_valid_options" do
     it "returns the valid set of option keys" do
-      Migratrix::Extractions::ActiveRecord.local_valid_options.should == [:fetchall]
+      Migratrix::Extractions::ActiveRecord.local_valid_options.should == [:fetchall, :includes, :joins]
     end
   end
 
   describe ".valid_options" do
     it "returns the valid set of option keys" do
-      Migratrix::Extractions::ActiveRecord.valid_options.should == [:fetchall] + Migratrix::Extractions::Extraction.valid_options
+      Migratrix::Extractions::ActiveRecord.valid_options.should == [:fetchall, :includes, :joins] + Migratrix::Extractions::Extraction.valid_options
     end
   end
 
@@ -57,7 +57,7 @@ describe Migratrix::Extractions::ActiveRecord do
       extraction.source = source
     end
 
-    [:where, :order, :limit, :offset].each do |handler|
+    [:where, :order, :limit, :offset, :includes, :joins].each do |handler|
       describe "#handle_#{handler}" do
         it "calls #{handler} on the source ActiveRelation" do
           source.should_receive(handler).with(1).and_return(nil)
@@ -75,7 +75,7 @@ describe Migratrix::Extractions::ActiveRecord do
       extraction.source = source
     end
 
-    describe "when source is ActiveRecord" do
+    describe "when source does not have to_sql (e.g. is ActiveRecord)" do
       it "converts it to ActiveRelation with where(1)" do
         extraction.should_receive(:handle_where).with(source, 1).and_return(relation)
         relation.should_receive(:to_sql).and_return(lolquery)
@@ -83,8 +83,9 @@ describe Migratrix::Extractions::ActiveRecord do
       end
     end
 
-    describe "When source has already been converted to ActiveRelation" do
+    describe "When source responds to to_sql (e.g. is already an ActiveRelation)" do
       it "delegates to to_sql on source" do
+        relation.should_receive(:respond_to?).with(:to_sql).and_return(true)
         relation.should_receive(:to_sql).and_return(lolquery)
         extraction.to_query(relation).should == lolquery
       end

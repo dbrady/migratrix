@@ -1,7 +1,7 @@
 spec = Gem::Specification.new do |s|
   s.name = 'migratrix'
   s.version = '0.8.3'
-  s.date = '2011-10-26'
+  s.date = '2011-10-27'
   s.summary = 'Rails 3 legacy database migratrion tool supporting multiple strategies'
   s.email = "github@shinybit.com"
   s.homepage = "http://github.com/dbrady/migratrix/"
@@ -23,7 +23,9 @@ spec = Gem::Specification.new do |s|
     "lib/migratrix/exceptions.rb",
     "lib/migratrix/extractions/active_record.rb",
     "lib/migratrix/extractions/extraction.rb",
+    "lib/migratrix/extractions/no_op.rb",
     "lib/migratrix/loads/load.rb",
+    "lib/migratrix/loads/no_op.rb",
     "lib/migratrix/loads/yaml.rb",
     "lib/migratrix/loggable.rb",
     "lib/migratrix/migration.rb",
@@ -31,12 +33,12 @@ spec = Gem::Specification.new do |s|
     "lib/migratrix/migratrix.rb",
     "lib/migratrix/registry.rb",
     "lib/migratrix/transforms/map.rb",
+    "lib/migratrix/transforms/no_op.rb",
     "lib/migratrix/transforms/transform.rb",
     "lib/migratrix/valid_options.rb",
     "lib/patches/andand.rb",
     "lib/patches/object_ext.rb",
     "lib/patches/string_ext.rb",
-    "spec/fixtures/components/no_op_components.rb",
     "spec/fixtures/migrations/inherited_migrations.rb",
     "spec/fixtures/migrations/test_migration.rb",
     "spec/lib/migratrix/_loggable_spec.rb",

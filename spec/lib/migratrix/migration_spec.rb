@@ -192,7 +192,7 @@ describe Migratrix::Migration do
         describe "#{component}" do
           it "extends the #{component} to child class" do
             ChildMigration1.send("extend_#{component}", :cheese, { second_option: 2 })
-            ChildMigration1.new.send("#{component}s")[:cheese].options.should == { second_option: 2, first_option: 'id>100'}
+            ChildMigration1.new.send("#{component}s")[:cheese].options.should == { second_option: 2, first_option: 'id>100' }
           end
 
           it "extends the #{component} to the grandchild class" do

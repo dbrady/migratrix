@@ -2,7 +2,7 @@ module Migratrix
   module Extractions
     # Extraction that expects to be pointed at an ActiveRecord class.
     class ActiveRecord < Extraction
-      set_valid_options :fetchall
+      set_valid_options :fetchall, :includes, :joins
 
       def source=(new_source)
         raise TypeError.new(":source is of type must be an ActiveRecord model class (must inherit from ActiveRecord::Base)") unless is_ar?(new_source)
@@ -15,8 +15,22 @@ module Migratrix
 
       def obtain_source(source, options={})
         raise ExtractionSourceUndefined unless source
-        raise TypeError.new(":source is of type must be an ActiveRecord model class (must inherit from ActiveRecord::Base)") unless is_ar?(source)
         source
+      end
+
+      def process_source(source, options={})
+        source = super
+        source = handle_joins(source, options[:joins]) if options[:joins]
+        source = handle_includes(source, options[:includes]) if options[:includes]
+        source
+      end
+
+      def handle_joins(source, clause)
+        source.joins(clause)
+      end
+
+      def handle_includes(source, clause)
+        source.includes(clause)
       end
 
       def handle_where(source, clause)
@@ -37,7 +51,8 @@ module Migratrix
 
       # Constructs the query
       def to_query(source)
-        if source.is_a?(::ActiveRecord::Relation)
+        source = process_source(obtain_source(source))
+        if source.respond_to? :to_sql
           source.to_sql
         else
           handle_where(source, 1).to_sql
@@ -46,7 +61,7 @@ module Migratrix
 
       def execute_extract(src, options={})
         return src.all if options['fetchall']
-        ret = if src.is_a?(::ActiveRecord::Relation)
+        ret = if src.respond_to? :to_sql
                 src
               else
                 handle_where(src, 1)

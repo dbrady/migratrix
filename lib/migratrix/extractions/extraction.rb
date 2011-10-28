@@ -15,6 +15,8 @@ module Migratrix
       end
 
       def extract(options={})
+        options = options.deep_copy
+        options[:where] = Array(options[:where]) + Array(@options[:where])
         options = @options.merge(options).symbolize_keys
 
         # TODO: Raise error if self.abstract? DANGER/NOTE that this is
@@ -22,15 +24,23 @@ module Migratrix
         # extracted to a strategy object.
 
         src = obtain_source(self.source, options)
-        src = handle_where(src, options[:where]) if options[:where]
-        src = handle_order(src, options[:order]) if options[:order]
-        src = handle_limit(src, options[:limit]) if options[:limit]
-        src = handle_offset(src, options[:offset]) if options[:offset]
+        src = process_source(src, options)
         execute_extract(src, options)
       end
 
+      def process_source(source, options)
+        if options[:where]
+          options[:where].each do |where|
+            source = handle_where(source, where)
+          end
+        end
+        source = handle_order(source, options[:order]) if options[:order]
+        source = handle_limit(source, options[:limit]) if options[:limit]
+        source = handle_offset(source, options[:offset]) if options[:offset]
+        source
+      end
 
-    # = extraction filter methods
+      # = extraction filter methods
       #
       # The handle_* methods receive a source and return a source and
       # must be chainable. For example, source might come in as an
@@ -55,22 +65,22 @@ module Migratrix
       end
 
       # Apply where clause to source, return new source.
-      def handle_where(source)
+      def handle_where(source, where)
         raise NotImplementedError
       end
 
       # Apply limit clause to source, return new source.
-      def handle_limit(source)
+      def handle_limit(source, limit)
         raise NotImplementedError
       end
 
       # Apply offset clause to source, return new source.
-      def handle_offset(source)
+      def handle_offset(source, offset)
         raise NotImplementedError
       end
 
       # Apply order clause to source, return new source.
-      def handle_order(source)
+      def handle_order(source, order)
         raise NotImplementedError
       end
 

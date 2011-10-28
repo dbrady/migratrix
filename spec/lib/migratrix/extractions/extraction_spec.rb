@@ -22,7 +22,9 @@ describe Migratrix::Extractions::Extraction do
     [:obtain_source, :handle_where, :handle_limit, :handle_offset, :handle_order, :to_query, :execute_extract].each do |method|
       describe "#{method}" do
         it "raises NotImplementedError" do
-          lambda { base_extraction.send(method, nil) }.should raise_error(NotImplementedError)
+          args = [nil, nil]
+          args.shift if method == :to_query
+          lambda { base_extraction.send(method, *args) }.should raise_error(NotImplementedError)
         end
       end
     end
@@ -31,17 +33,17 @@ describe Migratrix::Extractions::Extraction do
   describe "#extract (default strategy)" do
     describe "with no options" do
       let(:extraction) { TestExtraction.new :test }
-      it "should call handle_source and execute_extract only" do
-        extraction.should_receive(:obtain_source).with(nil, {}).and_return(13)
-        extraction.should_receive(:execute_extract).with(13, {}).and_return(64)
+      it "calls handle_source and execute_extract only" do
+        extraction.should_receive(:obtain_source).with(nil, {where: []}).and_return(13)
+        extraction.should_receive(:execute_extract).with(13, {where: []}).and_return(64)
         extraction.extract.should == 64
       end
     end
 
     describe "with all options" do
-      let(:options) { { :where => 1, :order => 2, :limit => 3, :offset => 4 } }
+      let(:options) { { :where => [1], :order => 2, :limit => 3, :offset => 4 } }
       let(:extraction) { TestExtraction.new :test, options }
-      it "should call entire handler chain" do
+      it "calls entire handler chain" do
         extraction.should_receive(:obtain_source).with(nil, options).and_return("A")
         extraction.should_receive(:handle_where).with("A", 1).and_return("B")
         extraction.should_receive(:handle_order).with("B", 2).and_return("C")
@@ -53,17 +55,25 @@ describe Migratrix::Extractions::Extraction do
     end
 
     describe "with overridden options" do
-      let(:options) { { :where => 1, :order => 2, :limit => 3, :offset => 4 } }
+      let(:options) { { :where => [1], :order => 2, :limit => 3, :offset => 4 } }
       let(:extraction) { TestExtraction.new :test, options }
-      let(:overrides) { {:where => 5, :order => 6, :limit => 7, :offset => 8 } }
-      it "should call entire handler chain" do
-        extraction.should_receive(:obtain_source).with(nil, overrides).and_return("A")
-        extraction.should_receive(:handle_where).with("A", 5).and_return("B")
+      let(:overrides) { {:where => [5], :order => 6, :limit => 7, :offset => 8 } }
+      let(:merged_options) { {:where => [5, 1], :order => 6, :limit => 7, :offset => 8 } }
+      it "calls entire handler chain, merging where clauses" do
+        extraction.should_receive(:obtain_source).with(nil, merged_options).and_return("A")
+        extraction.should_receive(:handle_where).exactly(2).times.and_return("B")
         extraction.should_receive(:handle_order).with("B", 6).and_return("C")
         extraction.should_receive(:handle_limit).with("C", 7).and_return("D")
         extraction.should_receive(:handle_offset).with("D", 8).and_return("E")
-        extraction.should_receive(:execute_extract).with("E", overrides).and_return("BONG")
+        extraction.should_receive(:execute_extract).with("E", merged_options).and_return("BONG")
         extraction.extract(overrides).should == "BONG"
+      end
+    end
+
+    describe "with where clause" do
+      let(:options) { { :where => 1, :order => 2, :limit => 3, :offset => 4 } }
+      let(:extraction) { TestExtraction.new :test, options }
+      it "promotes where clause to array" do
       end
     end
   end

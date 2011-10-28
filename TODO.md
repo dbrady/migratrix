@@ -2,6 +2,20 @@
 
 ## CRITICAL FEATURES FOR 0.9.0 ##
 
+(in no particular order)
+
+* [x] Add includes, joins to ActiveRecord extractor
+
+* [x] Allow procs as sources for extractions. Currently this bombs in
+  the deep_copy.
+
+* [x] Cascading where clauses? If the migration receives a where
+  clause and the extractor already has one, combine them. E.g. if I
+  have a SimpleWidgetsMigrator that calls `set_extraction
+  :active_record, where: "type='simple'"` and the user calls
+  `migrator.migrate where: 'id<10'` I'd like those two where clauses
+  ganged together rather than overwritten. 
+
 * [ ] Crossing the Streams. Although we support the notion of multiple
   ETL streams, currently a transform or load only receive the single
   stream that matches their name (or that they have named). Need to

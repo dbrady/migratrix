@@ -24,12 +24,11 @@ module Rails
   end
 end
 
-Dir[SPEC + "support/**/*.rb"].each {|f| require f}
-
 require LIB + 'migratrix'
-
 $:.unshift SPEC + "fixtures/migrations/"
 $:.unshift SPEC + "fixtures/components/"
+
+Dir[SPEC + "support/**/*.rb"].each {|f| require f}
 
 
 # Redirect singleton logger to logger of our choice, then release it
