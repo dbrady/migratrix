@@ -19,11 +19,10 @@ describe Migratrix::Extractions::Extraction do
 
   describe "unimplemented methods:" do
     let(:base_extraction) { Migratrix::Extractions::Extraction.new :test }
-    [:obtain_source, :handle_where, :handle_limit, :handle_offset, :handle_order, :to_query, :execute_extract].each do |method|
+    [:obtain_source, :handle_where, :handle_limit, :handle_offset, :handle_order, :execute_extract].each do |method|
       describe "#{method}" do
         it "raises NotImplementedError" do
           args = [nil, nil]
-          args.shift if method == :to_query
           lambda { base_extraction.send(method, *args) }.should raise_error(NotImplementedError)
         end
       end

@@ -19,7 +19,8 @@ module Migratrix
       end
 
       def process_source(source, options={})
-        source = super
+        options = @options.merge(options)
+        source = super source, options
         source = handle_joins(source, options[:joins]) if options[:joins]
         source = handle_includes(source, options[:includes]) if options[:includes]
         source
@@ -50,7 +51,31 @@ module Migratrix
       end
 
       # Constructs the query
-      def to_query(source)
+      #
+      # TODO: A bit of a POLS violation here. Let's say you define a
+      # migration class that has an extraction, then instantiate that
+      # migration with m = MyMigration.new(where: 'id=42'). You might
+      # expect to be abe to call m.extractions[:default].to_sql and
+      # get the query, but the reality is that the extraction hasn't
+      # actually seen the migration's options yet. They are passed in
+      # to extract, but not to to_sql. Not sure how to resolve this
+      # cleanly. Some options: 1. have Components know who their
+      # Migration is and ask it for its options (blegh); 2. pass in
+      # options here to to_sql (also blegh, because now end-users have
+      # to know they need to pass in the migration's options to
+      # to_sql); 3. have a proxy method on Migration that essentially
+      # works just like extract, but returns the query instead of the
+      # results. I dislike this mechanism the least but it's still
+      # only applicable to certain subclasses of Extraction so I
+      # hesitate to clutter Migration's API; 4. change
+      # Migration#extractions (et al) so it settles its options with
+      # the component before returning it. This seems like it would
+      # appear the cleanest to the end user but also seems like it
+      # would be excessively magical and a weird source of bugs--eg if
+      # you try to access migration.loads[:cheese] and it crashes
+      # because of an invalid option in loads[:wine].
+      def to_sql(source=nil)
+        source ||= @source
         source = process_source(obtain_source(source))
         if source.respond_to? :to_sql
           source.to_sql

@@ -226,14 +226,18 @@ module Migratrix
 
       def extract_attribute(object, attribute_or_extract)
         raise NotImplementedError unless options[:extract_attribute]
-        option = options[:extract_attribute]
-        case option
-        when Proc
-          option.call(object, attribute_or_extract)
-        when Symbol
-          object.send(option, attribute_or_extract)
+        if attribute_or_extract.is_a? Proc
+          attribute_or_extract.call(object)
         else
-          raise TypeError
+          option = options[:extract_attribute]
+          case option
+          when Proc
+            option.call(object, attribute_or_extract)
+          when Symbol
+            object.send(option, attribute_or_extract)
+          else
+            raise TypeError
+          end
         end
       end
 

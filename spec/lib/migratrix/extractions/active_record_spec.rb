@@ -67,7 +67,7 @@ describe Migratrix::Extractions::ActiveRecord do
     end
   end
 
-  describe "#to_query" do
+  describe "#to_sql" do
     let(:source) { TestModel }
     let(:relation) { source.where(1) }
     let(:lolquery) { 'SELECT "HAY GUYZ IM A QUARY LOL"' }
@@ -79,7 +79,7 @@ describe Migratrix::Extractions::ActiveRecord do
       it "converts it to ActiveRelation with where(1)" do
         extraction.should_receive(:handle_where).with(source, 1).and_return(relation)
         relation.should_receive(:to_sql).and_return(lolquery)
-        extraction.to_query(source).should == lolquery
+        extraction.to_sql(source).should == lolquery
       end
     end
 
@@ -87,7 +87,15 @@ describe Migratrix::Extractions::ActiveRecord do
       it "delegates to to_sql on source" do
         relation.should_receive(:respond_to?).with(:to_sql).and_return(true)
         relation.should_receive(:to_sql).and_return(lolquery)
-        extraction.to_query(relation).should == lolquery
+        extraction.to_sql(relation).should == lolquery
+      end
+    end
+
+    describe "with default source" do
+      it "uses @source" do
+        extraction = Migratrix::Extractions::ActiveRecord.new(:default, source: source)
+        source.should_receive(:to_sql).and_return(lolquery)
+        extraction.to_sql.should == lolquery
       end
     end
   end

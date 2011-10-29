@@ -15,7 +15,25 @@
   :active_record, where: "type='simple'"` and the user calls
   `migrator.migrate where: 'id<10'` I'd like those two where clauses
   ganged together rather than overwritten. 
+  
+* [ ] Nested transforms. For nested objects (perhaps in a flattening
+  migration) it would be nice to be able to nest the transform, so
+  that the transform for foo, which has_many bars, has a line like
+  bars: bar_transform, etc. Right now I'm using nested lambdas, like
+  so:
+  
+    >
+    set_transform :transform, {
+      transform: { legacy_id: :id,
+                   name: :name,
+                   children: ->(obj){ obj.children.map {|c|
+                        {id: c[:id], name: c[:name]}}}
+                 ...
+                 }
 
+  But what I'd really like to see is a way of navigating the object
+  tree with nested hashes or transforms, etc.
+  
 * [ ] Crossing the Streams. Although we support the notion of multiple
   ETL streams, currently a transform or load only receive the single
   stream that matches their name (or that they have named). Need to

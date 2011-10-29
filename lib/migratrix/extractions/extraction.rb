@@ -84,12 +84,6 @@ module Migratrix
         raise NotImplementedError
       end
 
-      # Constructs the query, if applicable. May not exist or make
-      # sense for non-SQL and/or non-ActiveRecord extractions.
-      def to_query(source)
-        raise NotImplementedError
-      end
-
       # Execute the extraction and return the result set.
       def execute_extract(source, options={})
         raise NotImplementedError
