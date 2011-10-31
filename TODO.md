@@ -4,18 +4,6 @@
 
 (in no particular order)
 
-* [x] Add includes, joins to ActiveRecord extractor
-
-* [x] Allow procs as sources for extractions. Currently this bombs in
-  the deep_copy.
-
-* [x] Cascading where clauses? If the migration receives a where
-  clause and the extractor already has one, combine them. E.g. if I
-  have a SimpleWidgetsMigrator that calls `set_extraction
-  :active_record, where: "type='simple'"` and the user calls
-  `migrator.migrate where: 'id<10'` I'd like those two where clauses
-  ganged together rather than overwritten. 
-  
 * [ ] Nested transforms. For nested objects (perhaps in a flattening
   migration) it would be nice to be able to nest the transform, so
   that the transform for foo, which has_many bars, has a line like
@@ -33,6 +21,11 @@
 
   But what I'd really like to see is a way of navigating the object
   tree with nested hashes or transforms, etc.
+  
+* [ ] Investigate: if you write your own Migration and override
+  #migrate, does it break all of the callbacks? If you write your own
+  Load and override #load, does it break all of the load callbacks? I
+  think it does....
   
 * [ ] Crossing the Streams. Although we support the notion of multiple
   ETL streams, currently a transform or load only receive the single
@@ -260,6 +253,18 @@ them all to get to the tasks that need doing.
   e.g. `set_extract :source => Pants`. This is a sensible
   simplification since most migrations only have one stream.
 
+* [x] Add includes, joins to ActiveRecord extractor
+
+* [x] Allow procs as sources for extractions. Currently this bombs in
+  the deep_copy.
+
+* [x] Cascading where clauses? If the migration receives a where
+  clause and the extractor already has one, combine them. E.g. if I
+  have a SimpleWidgetsMigrator that calls `set_extraction
+  :active_record, where: "type='simple'"` and the user calls
+  `migrator.migrate where: 'id<10'` I'd like those two where clauses
+  ganged together rather than overwritten. 
+  
 ^^^ New Done Stuff Goes here  
 
 
