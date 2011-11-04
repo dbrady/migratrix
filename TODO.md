@@ -4,6 +4,10 @@
 
 (in no particular order)
 
+* [ ] Transform#finalize_object should accept a symbol, and send that
+  message to the Transform instance. E.g. `finalize_object: :my_func`
+  would call Transform#my_func(object).
+
 * [ ] Better logging--hard to tell where I'm at in a long migration
   from reading the log files
 
