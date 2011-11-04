@@ -52,6 +52,7 @@ module Migratrix
             save_object transformed_object
           end
         end
+        transformed_objects
       end
 
       def save_object(transformed_object)
