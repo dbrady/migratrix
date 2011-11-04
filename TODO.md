@@ -4,12 +4,11 @@
 
 (in no particular order)
 
-* [x] Load::ActiveRecord. Do we really need this? Do we need anything
-  besides the default Load strategy? (Remember, the AR class is set in
-  Transform, so save should just work...) YES, we need this, but for a
-  different reason: we need to do update existing records rather than
-  simply saving a new object every time.
-  
+* [ ] Better logging--hard to tell where I'm at in a long migration
+  from reading the log files
+
+* [ ] PROGRESS bar/meter.
+
 * [ ] Non-applied transform variables. I notice a pattern emerging
   where I'm sticking crap in hashes and then deleting the keys back
   out in finalize_object.
@@ -290,6 +289,17 @@ them all to get to the tasks that need doing.
   `migrator.migrate where: 'id<10'` I'd like those two where clauses
   ganged together rather than overwritten. 
   
+* [x] Load::ActiveRecord. Do we really need this? Do we need anything
+  besides the default Load strategy? (Remember, the AR class is set in
+  Transform, so save should just work...) YES, we need this, but for a
+  different reason: we need to do update existing records rather than
+  simply saving a new object every time.
+  
+* [*] "seen" cache on updates, at least by id. E.g. if we're saving
+  projects with many tasks, allow a caching strategy to remember if
+  we've already seen/updated a task, and then not re-update it after
+  that.
+
 ^^^ New Done Stuff Goes here  
 
 
