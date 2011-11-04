@@ -4,15 +4,44 @@
 
 (in no particular order)
 
+* [x] Load::ActiveRecord. Do we really need this? Do we need anything
+  besides the default Load strategy? (Remember, the AR class is set in
+  Transform, so save should just work...) YES, we need this, but for a
+  different reason: we need to do update existing records rather than
+  simply saving a new object every time.
+  
+* [ ] Non-applied transform variables. I notice a pattern emerging
+  where I'm sticking crap in hashes and then deleting the keys back
+  out in finalize_object.
+  
+* [ ] finalize_object, and possibly other steps, need access to the
+  source object.
+
+* [ ] extract/apply shorthand for `extract_attribute:  ->(obj,attr) {
+      obj.send(attr) }` and `apply_attribute: ->(obj,attr,value) {
+      obj.send("#{attr}=", val) }`, e.g. `extract_attribute: :'.'`
+      (yuck, find a better shorthand)
+
+* [ ] Nested migrations and transforms. Given a projects app, when
+  migrating a projec with tasks, it would be nice to say e.g. `tasks:
+  has_many({options})` where options could contain `accessor: :tasks`,
+  `transform: :my_task_transform`, or even `migration:
+  my_registered_migration`. If you specify transform, it would only
+  run that transformation and it's up to you to handle this in the
+  load phase (perhaps with `before_load :save_tasks`?); if you specify
+  a migration we may want to skip the extract phase, but for now in
+  "just make it work" mode we'll go ahead and let the migration
+  trigger a full migrate with a `where: 'id=...'` clause, etc.
+
 * [ ] Nested transforms. For nested objects (perhaps in a flattening
   migration) it would be nice to be able to nest the transform, so
-  that the transform for foo, which has_many bars, has a line like
-  bars: bar_transform, etc. Right now I'm using nested lambdas, like
+  that the transform for foo, which has\_many bars, has a line like
+  bars: bar\_transform, etc. Right now I'm using nested lambdas, like
   so:
   
     >
-    set_transform :transform, {
-      transform: { legacy_id: :id,
+    set\_transform :transform, {
+      transform: { legacy\_id: :id,
                    name: :name,
                    children: ->(obj){ obj.children.map {|c|
                         {id: c[:id], name: c[:name]}}}
@@ -39,10 +68,6 @@
   `migration.options`
 
 * [ ] Migration Log
-
-* [ ] Load::ActiveRecord. Do we really need this? Do we need anything
-  besides the default Load strategy? (Remember, the AR class is set in
-  Transform, so save should just work...)
 
 * [ ] Codify the strategy of merge transforms, e.g. perform a
   `find_or_create` in the transform instead of calling new. Again,

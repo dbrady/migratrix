@@ -29,6 +29,7 @@ module Migratrix
   require APP + 'transforms/map'
 
   require APP + 'loads/load'
+  require APP + 'loads/active_record'
   require APP + 'loads/no_op'
   require APP + 'loads/yaml'
 #  require APP + 'loads/csv'
@@ -84,6 +85,7 @@ module Migratrix
   register_transform :no_op, Transforms::NoOp
 
   register_load :load, Loads::Load
+  register_load :active_record, Loads::ActiveRecord
   register_load :no_op, Loads::NoOp
   register_load :yaml, Loads::Yaml
 
