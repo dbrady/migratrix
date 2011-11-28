@@ -1,7 +1,7 @@
 spec = Gem::Specification.new do |s|
   s.name = 'migratrix'
   s.version = '0.8.6'
-  s.date = '2011-11-03'
+  s.date = '2011-11-28'
   s.summary = 'Rails 3 legacy database migratrion tool supporting multiple strategies'
   s.email = "github@shinybit.com"
   s.homepage = "http://github.com/dbrady/migratrix/"
@@ -13,7 +13,6 @@ spec = Gem::Specification.new do |s|
   s.authors = ["David Brady"]
   s.add_dependency('trollop')
 
-  # ruby -rpp -e "pp ("
   s.files = [
     "README.md",
     "bin/migratrix",

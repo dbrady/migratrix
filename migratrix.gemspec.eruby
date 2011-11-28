@@ -13,7 +13,6 @@ spec = Gem::Specification.new do |s|
   s.authors = ["David Brady"]
   s.add_dependency('trollop')
 
-  # ruby -rpp -e "pp ("
   s.files = [
     <% (Dir['{README.md,{lib,spec}/**/*.{rb,md,rdoc,json,txt,xml,yml}}'] + Dir['bin/*']).sort.each do |file| %>
     <%= file.strip.inspect %>,
