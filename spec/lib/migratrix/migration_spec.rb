@@ -170,7 +170,7 @@ describe Migratrix::Migration do
 
     describe ".valid_options" do
       it "returns valid options from itself and components" do
-        TestMigration.valid_options.should == [:console, :fetchall, :limit, :map, :offset, :order, :where]
+        TestMigration.valid_options.should == [:console, :fetchall, :filename, :limit, :map, :offset, :order, :where]
       end
     end
   end

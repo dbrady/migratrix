@@ -34,11 +34,11 @@ module Migratrix
           opts += transform.valid_options
         end
       end
-#       if loads
-#         loads.each do |name, load|
-#           opts += load.valid_options
-#         end
-#       end
+      if loads
+        loads.each do |name, load|
+          opts += load.valid_options
+        end
+      end
       opts.uniq.sort
     end
 
@@ -86,6 +86,8 @@ module Migratrix
       self.class.extractions
     end
 
+    # TODO: THIS IS HUGE DUPLICATION, REFACTOR REFACTOR REFACTOR
+
     # transform crap
     # set_transform :nickname, :registered_name, options_hash
     # set_transform :nickname, :registered_name # options = {}
@@ -127,6 +129,8 @@ module Migratrix
     def transforms
       self.class.transforms
     end
+
+    # TODO: THIS IS HUGE DUPLICATION, REFACTOR REFACTOR REFACTOR
 
     # load crap
     # set_load :nickname, :registered_name, options_hash
