@@ -78,18 +78,6 @@ module Migratrix
       # parts.
       #
       # ----------------------------------------------------------------------
-      # Map's strategy, as used by PetsMigration
-      #
-      # create_transformed_collection -> Hash.new
-      # create_new_object -> Hash.new
-      # transformation -> {:id => :id, :name => :name }
-      # extract_attribute -> object[attribute_or_extract]
-      # apply_attribute -> object[attribute] = attribute_or_apply
-      # finalize_object -> no-op
-      # store_transformed_object -> collection[object[:id]] = object
-      # ----------------------------------------------------------------------
-      #
-      # ----------------------------------------------------------------------
       # Default strategy:
       #
       # create_transformed_collection -> Array.new
