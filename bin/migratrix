@@ -1,2 +1,2 @@
 #!/usr/bin/env ruby
-puts "Nothing to see here yet -- use rake tasks to call Migratrix.migrate!(:migrator, options) directly"
+puts "Nothing to see here yet -- call Migratrix.migrate!(:migrator, options) directly from your own driver code (scripts, rake tasks, etc)"
