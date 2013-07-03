@@ -157,7 +157,6 @@ module Migratrix
       # - instead of procs, take blocks and use define_method on them
       #   so they're faster.
       def transform(extracted_objects)
-        info "Transform #{name} started transform."
         transformed_collection = create_transformed_collection
         extracted_objects.each do |extracted_object|
           new_object = create_new_object(extracted_object)
@@ -167,7 +166,6 @@ module Migratrix
           transformed_object = finalize_object(new_object)
           store_transformed_object(transformed_object, transformed_collection)
         end
-        info "Transform #{name} finished transform."
         transformed_collection
       end
 
