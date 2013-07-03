@@ -80,7 +80,7 @@ module Migratrix
         if source.respond_to? :to_sql
           source.to_sql
         else
-          handle_where(source, 1).to_sql
+          handle_where(source, true).to_sql
         end
       end
 
@@ -89,7 +89,7 @@ module Migratrix
         ret = if src.respond_to? :to_sql
                 src
               else
-                handle_where(src, 1)
+                handle_where(src, true)
               end
       end
     end
