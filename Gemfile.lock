@@ -107,7 +107,7 @@ GEM
       polyglot
       polyglot (>= 0.3.1)
     trollop (1.16.2)
-    tzinfo (0.3.30)
+    tzinfo (0.3.61)
 
 PLATFORMS
   ruby
